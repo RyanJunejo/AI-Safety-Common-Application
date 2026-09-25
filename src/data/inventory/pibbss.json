@@ -1,0 +1,229 @@
+{
+  "program": {
+    "id": "pibbss",
+    "name": "PIBBSS",
+    "fullName": "PIBBSS Fellowship (Principles of Intelligence)",
+    "organization": "Principles of Intelligence (PrincInt, formerly PIBBSS)",
+    "cohort": "2026-2027 Winter",
+    "applyUrl": "https://forms.gle/n6ctEGjTj4pxnRUN8",
+    "infoUrl": "https://princint.ai/programs/fellowship/",
+    "roundStatus": "closed",
+    "roundStatusEvidence": "Applications for the 2026-2027 Winter fellowship are closed. / The application deadline for the 2026-2027 Winter PIBBSS Fellowship was July 20, 2026.",
+    "roundStatusSourceUrl": "https://princint.ai/programs/fellowship/",
+    "deadlines": [
+      {
+        "label": "2026-2027 Winter",
+        "at": "2026-07-20T23:59:00-12:00"
+      }
+    ],
+    "nextRoundNote": "No next round announced; the fellowship page links an expression-of-interest form.",
+    "formVisibility": "closed",
+    "programDates": "~3 months, November 2026 – February 2027 (final symposium in Spring 2027)",
+    "format": "in-person",
+    "locations": [
+      "Cape Town, South Africa"
+    ],
+    "locationNotes": "In-person; \"remote for exceptional candidates\" (FAQ: remote participation allowed only in truly exceptional cases, roughly about one person per cohort). Accommodation provided (private bedroom, may be in a shared apartment), one return flight to Cape Town, short-term visa support letters available. Accepts applicants from all countries.",
+    "compensation": "$3,000/month stipend + accommodation, workday meals (lunch, dinner, snacks), one return flight to Cape Town",
+    "commitment": "full-time, ~3 months (plus remote pre-program reading group and opening/closing retreats)",
+    "eligibilityNotes": [
+      "Aimed at PhD and postdoctoral researchers, but applicants with substantial research experience are welcome regardless of credentials (FAQ: PhD not required, but looking for something like PhD-level research ability or equivalent independent work).",
+      "Applicants from all countries accepted; special interest in Global South applicants.",
+      "No prior AI safety experience, publications, coding experience, or specific project idea required.",
+      "Full-time only; cannot be pursued in parallel to other fellowship programs or jobs. Applicants applying to other programs in parallel must disclose that in the application.",
+      "Strong command of spoken and written English is described as essential.",
+      "Relevant fields include mathematics, neuroscience/cognitive science, dynamical systems, physics, philosophy, political/economic theory, ecology/evolutionary biology, linguistics, media studies, humanities.",
+      "Special tracks this round: Post-AGI Civilisation Dynamics / Gradual Disempowerment (up to 4 fellows, ACS Research), ASI Safety via AIXI (up to 4, AIXI Labs), Safe Pareto Improvement (CLR; ~3-hour test), Corrigibility (Corrigibility Research Fund)."
+    ],
+    "publishedTimeEstimate": null,
+    "aiPolicy": {
+      "stance": "not-stated",
+      "summary": "No policy on AI/LLM use in applications was found on the fellowship page, the closed form notice, or the LessWrong announcement.",
+      "quote": null,
+      "sourceUrl": "https://princint.ai/programs/fellowship/"
+    },
+    "stages": [
+      {
+        "id": "application",
+        "name": "Stage 1: Written application",
+        "description": "CV/résumé, personal statement (600-800 words on research background and motivation; the form includes sub-questions), past work samples (optional but recommended). Deadline July 20, 2026, 23:59 AoE.",
+        "phase": "application",
+        "known": true
+      },
+      {
+        "id": "spi-track-test",
+        "name": "Safe Pareto Improvement track test (CLR)",
+        "description": "For applicants interested in the SPI track only: CLR asks interested applicants to take a test of around 3 hours. When it happens in the process is not stated.",
+        "phase": "later",
+        "known": true
+      },
+      {
+        "id": "work-task",
+        "name": "Work tasks",
+        "description": "FAQ: work tasks assess research-relevant skills (examples: writing a research proposal, analyzing papers, critiquing scientific writing); they happen in late July and generally must be completed within that week. Placement relative to 'Stage 2-4' interviews is inferred from timing only.",
+        "phase": "later",
+        "known": true
+      },
+      {
+        "id": "interviews",
+        "name": "Stages 2-4: Interviews and project development",
+        "description": "Multiple interview rounds to discuss research interests, develop project proposals, and match with mentors.",
+        "phase": "later",
+        "known": true
+      },
+      {
+        "id": "mentor-matching",
+        "name": "Mentor interviews and matching",
+        "description": "After interviews, staff identify mentors; fellows typically do 2–3 mentor interviews, then mentors and fellows submit preference lists and matching is based on preference ranking. Final decisions by mid-September 2026 (LessWrong announcement).",
+        "phase": "later",
+        "known": true
+      }
+    ],
+    "sources": [
+      {
+        "label": "PIBBSS Fellowship page",
+        "url": "https://princint.ai/programs/fellowship/",
+        "accessed": "2026-09-25",
+        "note": "Top banner says applications are closed; Timeline says deadline was July 20, 2026. Application Process section still (stale) reads 'now open' and lists Stage 1 components. FAQ describes personal-statement sub-questions, work tasks, writing samples, mentor matching, parallel-application disclosure. SPI track mentions ~3-hour test."
+      },
+      {
+        "label": "Application form (Google Form)",
+        "url": "https://forms.gle/n6ctEGjTj4pxnRUN8",
+        "accessed": "2026-09-25",
+        "note": "Resolves to https://docs.google.com/forms/d/e/1FAIpQLSeaqm2fkOkGc8ocdRRCDv6LxgBgDgDIqfXx_VR9najpVSj-sQ/closedform titled '2026-2027 Winter PIBBSS Fellowship Application Form' with only: 'The application process is now closed and we will not be accepting more applicants.' No questions visible."
+      },
+      {
+        "label": "LessWrong announcement 'Apply to the Inaugural PIBBSS Winter Research Fellowship!' (posted 2026-07-01)",
+        "url": "https://www.lesswrong.com/posts/4sxrAodhAWveh2gaL/apply-to-the-inaugural-pibbss-winter-research-fellowship",
+        "accessed": "2026-09-25",
+        "note": "States 'Deadline: July 20th, 2026, 23:59 Anywhere on Earth', 'Final decisions by mid-September, 2026', Stage 1 = 'CV, personal statement (600–800 words), and optional work samples'. Fetched via LessWrong GraphQL."
+      },
+      {
+        "label": "Expression of Interest form",
+        "url": "https://docs.google.com/forms/d/e/1FAIpQLSdfkG75s8A-w9NEHYnX4MTM5yTjkQ4YLJYq_SXb23HwG5tRRw/viewform",
+        "accessed": "2026-09-25",
+        "note": "Generic PrincInt interest form linked from the fellowship page; not the fellowship application. Not submitted."
+      }
+    ],
+    "notes": "Deadline 2026-07-20 23:59 Anywhere on Earth (UTC-12) = 2026-07-21T11:59:00Z. The fellowship page is internally inconsistent: the banner and Timeline say closed / deadline passed, while the 'Application Process' section still says 'Applications for the 2026-2027 Winter fellowship are now open.' The closed Google Form confirms closure. Exact form prompts (including the personal statement sub-questions, contact fields, and any track-selection question) are not published. No AI-use policy found. Next round: No next round announced on the fellowship page; it links an 'Expression of Interest for future opportunities' form. That (generic, apparently older) form says: \"Preliminary, we're planning to organize a PIBBSS research fellowship every summer\". The LessWrong announcement says the most recent prior iteration was hosted in London in summer 2026."
+  },
+  "questions": [
+    {
+      "id": "pibbss-cv",
+      "prompt": "CV/résumé",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "identity-cv",
+      "stage": "application",
+      "format": "file-upload",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://princint.ai/programs/fellowship/",
+      "verifiedOn": "2026-09-25",
+      "notes": "Listed as a Stage 1 component on the official page (no 'optional' marker, unlike work samples); 'required' is inferred from that contrast. Whether it is a file upload or a link is not published.",
+      "dossierField": "cv"
+    },
+    {
+      "id": "pibbss-personal-statement",
+      "prompt": "Personal statement (600-800 words on research background and motivation)",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "interests-motivation",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": {
+        "unit": "words",
+        "min": 600,
+        "max": 800,
+        "text": "600-800 words"
+      },
+      "lengthStatus": "stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://princint.ai/programs/fellowship/",
+      "verifiedOn": "2026-09-25",
+      "notes": "Official page wording. FAQ: 'The form already includes sub-questions, and the best approach is to answer those directly.' The sub-question prompts are not published; it is unknown whether the 600-800 words is a total across sub-questions. LessWrong announcement renders it as 'personal statement (600–800 words)'. 'required' inferred (not marked optional).",
+      "dossierField": "researchInterests"
+    },
+    {
+      "id": "pibbss-work-samples",
+      "prompt": "Past work samples (optional but recommended)",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "links-evidence",
+      "stage": "application",
+      "format": "url",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "optional",
+      "aiRule": null,
+      "sourceUrl": "https://princint.ai/programs/fellowship/",
+      "verifiedOn": "2026-09-25",
+      "notes": "FAQ: papers, unpublished drafts, blog posts, newspaper articles and similar are acceptable; GitHub repos/code count toward coding ability but not research ability. Upload vs. link format is not published (format 'url' is a placeholder).",
+      "dossierField": "artifacts"
+    },
+    {
+      "id": "pibbss-parallel-applications",
+      "prompt": "Disclose whether you are applying for other programs or opportunities in parallel",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "availability-eligibility",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "unknown",
+      "aiRule": null,
+      "sourceUrl": "https://princint.ai/programs/fellowship/",
+      "verifiedOn": "2026-09-25",
+      "notes": "FAQ ('Who should not apply?'): 'If you are applying for other programs or opportunities in parallel to the PIBBSS fellowship, please disclose that in your application.' Not published whether this is a dedicated field or part of another answer; format is a placeholder.",
+      "reuse": "attest"
+    },
+    {
+      "id": "pibbss-spi-track-test",
+      "prompt": "Safe Pareto Improvement track test set by CLR (exact content not published)",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "research-judgment",
+      "stage": "spi-track-test",
+      "format": "timed-task",
+      "options": null,
+      "statedLength": {
+        "unit": "minutes",
+        "min": null,
+        "max": 180,
+        "text": "it’s around 3 hours"
+      },
+      "lengthStatus": "stated",
+      "required": "unknown",
+      "aiRule": null,
+      "sourceUrl": "https://princint.ai/programs/fellowship/",
+      "verifiedOn": "2026-09-25",
+      "notes": "Only for applicants interested in the SPI track: 'Since the agenda is quite specific, CLR would like interested applicants to take a test (it’s around 3 hours).' 'around 3 hours' is approximate, not a hard cap.",
+      "condition": "Safe Pareto Improvement track only"
+    },
+    {
+      "id": "pibbss-work-task",
+      "prompt": "Research work task (e.g., writing a research proposal, analyzing papers, or critiquing scientific writing; exact tasks not published)",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "research-judgment",
+      "stage": "work-task",
+      "format": "timed-task",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://princint.ai/programs/fellowship/",
+      "verifiedOn": "2026-09-25",
+      "notes": "FAQ: 'Work tasks are designed to assess research-relevant skills. Examples included: writing a research proposal, analyzing papers, or critiquing scientific writing.' 'Work tasks happen in late July and generally must be completed within that particular week.' Time per task not stated. 'required' applies to applicants invited to this stage."
+    }
+  ]
+}
