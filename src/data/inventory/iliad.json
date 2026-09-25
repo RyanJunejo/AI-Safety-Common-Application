@@ -1,0 +1,331 @@
+{
+  "program": {
+    "id": "iliad",
+    "name": "Iliad",
+    "fullName": "Iliad Intensive and Iliad Fellowship",
+    "organization": "Iliad (fiscally sponsored by Principles of Intelligence)",
+    "cohort": "November 2026 Iliad Intensive / December 2026 Iliad Fellowship",
+    "applyUrl": "https://www.iliad.ac/apply",
+    "infoUrl": "https://www.iliad.ac/programs",
+    "roundStatus": "open",
+    "roundStatusEvidence": "Calendar: \"November 2026 Iliad Intensive | Nov 2–27, 2026 | London | Applications close Sep 28, 2026\" and \"December 2026 Iliad Fellowship | Dec 1–Mar 5, 2027 | Bay Area | Applications close Oct 19, 2026\"",
+    "roundStatusSourceUrl": "https://www.iliad.ac/upcoming-events",
+    "deadlines": [
+      {
+        "label": "Nov 2026 Intensive",
+        "at": "2026-09-28T23:59:59+01:00"
+      },
+      {
+        "label": "Dec 2026 Fellowship",
+        "at": "2026-10-19T23:59:59-07:00"
+      }
+    ],
+    "nextRoundNote": "The Intensive runs monthly, alternating between London and the Bay Area.",
+    "formVisibility": "visible",
+    "programDates": "Intensive: Nov 2–27, 2026; Fellowship: Dec 1, 2026 – Mar 5, 2027",
+    "format": "in-person",
+    "locations": [
+      "London, UK",
+      "Bay Area, CA, USA"
+    ],
+    "locationNotes": "November 2026 Intensive at LISA, London. December 2026 Fellowship: the form labels it \"[London or SF]\" but the calendar lists \"Bay Area\" (feed venue: Lighthaven). No visa-sponsorship policy stated; the form asks for immigration status in the US and/or UK.",
+    "compensation": "Intensive: no tuition, $5,000 USD travel-and-housing allowance, office space, lunch and dinner five days a week. Fellowship: $6,000 USD travel-and-housing allowance per month.",
+    "commitment": "Intensive: full-time, four weeks, five days a week 10am–6pm. Fellowship: full-time, three months (calendar feed describes the December 2026 Fellowship as 14 weeks).",
+    "eligibilityNotes": [
+      "Applicants must confirm they will be at least 18 by the start date of every program they apply to.",
+      "Intensive: strong mathematical background, typically pursuing or having completed a graduate degree in mathematics, physics, or theoretical computer science; \"The requirement is mathematical maturity, not a specific credential.\"",
+      "Fellowship: aimed at PhD students, postdocs, or researchers with equivalent experience; the degree is not a hard requirement. Completing the Intensive first is not required.",
+      "Immigration status in the US and/or UK is asked; no sponsorship or work-authorization rule is published."
+    ],
+    "publishedTimeEstimate": null,
+    "aiPolicy": {
+      "stance": "not-stated",
+      "summary": "No policy on AI use in applications appears on the apply form or on the program, FAQ, or calendar pages.",
+      "quote": null,
+      "sourceUrl": null
+    },
+    "stages": [
+      {
+        "id": "application",
+        "name": "Application form",
+        "description": "Single on-page form on iliad.ac/apply covering upcoming Intensive and Fellowship iterations: CV, program choice, three written answers (why applying, career aspirations, two difficult mathematical concepts), immigration status, how you heard, and age/privacy confirmations. Confirmation email comes from admissions@iliad.ac.",
+        "phase": "application",
+        "known": true
+      },
+      {
+        "id": "later-stages",
+        "name": "Later selection stages",
+        "description": "Not described on any Iliad page.",
+        "phase": "later",
+        "known": false
+      }
+    ],
+    "sources": [
+      {
+        "label": "Apply page (native form)",
+        "url": "https://www.iliad.ac/apply",
+        "accessed": "2026-09-25",
+        "note": "Form is native HTML on the page (no embedded third-party form); submissions POST to an Iliad Cloudflare worker. Validation rules read from the page script. The calendar's link https://www.iliad.ac/apply?direct loads the same form (\"direct\" is stored as a referral slug)."
+      },
+      {
+        "label": "Calendar / Upcoming Events",
+        "url": "https://www.iliad.ac/upcoming-events",
+        "accessed": "2026-09-25",
+        "note": "Rendered status per event: Nov 2026 Intensive \"Applications close Sep 28, 2026\"; Dec 2026 Fellowship \"Applications close Oct 19, 2026\"; Oct 2026 Intensive, Oct 2026 Fellowship, Nov 2026 Fellowship \"Applications closed\"."
+      },
+      {
+        "label": "Iliad Intensive page",
+        "url": "https://www.iliad.ac/intensive",
+        "accessed": "2026-09-25",
+        "note": "Duration, schedule, locations, allowance, who should apply."
+      },
+      {
+        "label": "Iliad Fellowship page",
+        "url": "https://www.iliad.ac/fellowship",
+        "accessed": "2026-09-25",
+        "note": "Duration, format, allowance, research level."
+      },
+      {
+        "label": "FAQ",
+        "url": "https://www.iliad.ac/faq",
+        "accessed": "2026-09-25",
+        "note": "\"A single Iliad application form covers upcoming Intensive and Fellowship iterations.\" PhD not required."
+      }
+    ],
+    "notes": "One form covers both the November 2026 Intensive (deadline Sep 28, 2026) and the December 2026 Fellowship (deadline Oct 19, 2026); the round stays open until the later one. Neither deadline states a timezone; each is recorded as end of day where that cohort runs (London, then the Bay Area). The November 2026 Fellowship appears in the calendar but is not offered on the form and shows “Applications closed”. No per-question length limits are shown to applicants."
+  },
+  "questions": [
+    {
+      "id": "iliad-name",
+      "prompt": "Name",
+      "promptVisibility": "verbatim",
+      "helpText": null,
+      "category": "identity-cv",
+      "stage": "application",
+      "format": "short-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Hidden HTML maxlength=2000 characters (not shown to applicants).",
+      "dossierField": "fullName"
+    },
+    {
+      "id": "iliad-email",
+      "prompt": "Email",
+      "promptVisibility": "verbatim",
+      "helpText": null,
+      "category": "identity-cv",
+      "stage": "application",
+      "format": "email",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Client-side email format check. Hidden HTML maxlength=320 characters (not shown to applicants).",
+      "dossierField": "email"
+    },
+    {
+      "id": "iliad-cv",
+      "prompt": "CV",
+      "promptVisibility": "verbatim",
+      "helpText": "Upload your CV/Resume as a PDF, max 4.5 MB",
+      "category": "identity-cv",
+      "stage": "application",
+      "format": "file-upload",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "PDF only (Word documents rejected by the form script); max 4.5 MB.",
+      "dossierField": "cv"
+    },
+    {
+      "id": "iliad-program-choice",
+      "prompt": "I would like to be considered for the:",
+      "promptVisibility": "verbatim",
+      "helpText": null,
+      "category": "program-fit",
+      "stage": "application",
+      "format": "multi-select",
+      "options": [
+        "November 2026 Iliad Intensive [LISA, London]",
+        "December 2026 Iliad Fellowship [London or SF]"
+      ],
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Checkboxes; at least one must be selected (\"Please select at least one program.\"). Location tags on the form (\"[London or SF]\" for the December Fellowship) differ from the calendar, which lists the December 2026 Fellowship in the Bay Area (venue Lighthaven)."
+    },
+    {
+      "id": "iliad-why-applying",
+      "prompt": "Why are you applying to this program?",
+      "promptVisibility": "verbatim",
+      "helpText": null,
+      "category": "interests-motivation",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Hidden HTML maxlength=50000 characters (not shown to applicants).",
+      "dossierField": "researchInterests"
+    },
+    {
+      "id": "iliad-career-aspirations",
+      "prompt": "Please describe your career aspirations for the next few years and where this program fits in.",
+      "promptVisibility": "verbatim",
+      "helpText": null,
+      "category": "interests-motivation",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Hidden HTML maxlength=50000 characters (not shown to applicants).",
+      "dossierField": "researchInterests"
+    },
+    {
+      "id": "iliad-difficult-math-concepts",
+      "prompt": "What are the two most difficult mathematical concepts that you have mastered? What made them difficult?",
+      "promptVisibility": "verbatim",
+      "helpText": null,
+      "category": "research-judgment",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Asks for exactly two concepts plus what made them difficult; no length limit shown. Hidden HTML maxlength=50000 characters (not shown to applicants)."
+    },
+    {
+      "id": "iliad-immigration-status",
+      "prompt": "What is your immigration status in the US and/or UK?",
+      "promptVisibility": "verbatim",
+      "helpText": "Whichever is relevant to your program applications",
+      "category": "availability-eligibility",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Free text (3-row textarea). No visa-sponsorship policy is stated anywhere on iliad.ac. Hidden HTML maxlength=20000 characters (not shown to applicants).",
+      "dossierField": "workAuthorization"
+    },
+    {
+      "id": "iliad-how-heard",
+      "prompt": "How did you hear about us?",
+      "promptVisibility": "verbatim",
+      "helpText": "E.g., LessWrong, Alignment Forum, word of mouth, physical poster, EA Slack/Discord channel… If any Iliad researcher recommended that you apply, please note that here!",
+      "category": "program-fit",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Required on this form (3-row textarea). Doubles as the referral capture: asks you to name any Iliad researcher who recommended you apply. Hidden HTML maxlength=20000 characters (not shown to applicants).",
+      "reuse": "attest"
+    },
+    {
+      "id": "iliad-anything-else",
+      "prompt": "Anything else?",
+      "promptVisibility": "verbatim",
+      "helpText": null,
+      "category": "program-fit",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "optional",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Hidden HTML maxlength=50000 characters (not shown to applicants)."
+    },
+    {
+      "id": "iliad-updates-consent",
+      "prompt": "I consent to receiving updates about Iliad’s programs, opportunities, and research.",
+      "promptVisibility": "verbatim",
+      "helpText": "We send updates occasionally. You can unsubscribe at any time.",
+      "category": "consent",
+      "stage": "application",
+      "format": "checkbox",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "optional",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Single checkbox labelled \"Yes, keep me updated\"."
+    },
+    {
+      "id": "iliad-age-confirmation",
+      "prompt": "I will be at least 18 years old by the start date of every program I am applying to here.",
+      "promptVisibility": "verbatim",
+      "helpText": null,
+      "category": "availability-eligibility",
+      "stage": "application",
+      "format": "checkbox",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Single checkbox labelled \"I confirm I will be 18 or older\".",
+      "reuse": "attest"
+    },
+    {
+      "id": "iliad-privacy-consent",
+      "prompt": "I consent to Iliad and Principles of Intelligence processing my personal data as described in the Privacy Policy:",
+      "promptVisibility": "verbatim",
+      "helpText": "Privacy Policy here.\nThis is for the purposes of:\n(1) evaluating my Iliad program application,\n(2) onboarding me if selected, and\n(3) performing obligations under our program.\nI understand that these steps are necessary for the performance of this agreement and cannot be opted out of.",
+      "category": "consent",
+      "stage": "application",
+      "format": "checkbox",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "not-stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.iliad.ac/apply",
+      "verifiedOn": "2026-09-25",
+      "notes": "Single checkbox labelled \"I consent\". \"Privacy Policy here.\" links to https://princint.ai/privacy-policy."
+    }
+  ]
+}

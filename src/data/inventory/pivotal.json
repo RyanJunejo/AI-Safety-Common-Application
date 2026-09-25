@@ -1,0 +1,261 @@
+{
+  "program": {
+    "id": "pivotal",
+    "name": "Pivotal",
+    "fullName": "Pivotal Research Fellowship (AI Safety Research Fellowship)",
+    "organization": "Pivotal Research Ltd",
+    "cohort": "2027 Q1",
+    "applyUrl": "https://www.pivotal-research.org/apply",
+    "infoUrl": "https://www.pivotal-research.org/fellowship",
+    "roundStatus": "closed",
+    "roundStatusEvidence": "Application forms show \"Form closed to new submissions\" and \"26.Q3 Applications Now Closed\"; the fellowship page for the 18 January – 30 April 2027 cohort offers only \"Express interest ↗\" (no apply link).",
+    "roundStatusSourceUrl": "https://form.fillout.com/t/nXrT8K31PBus",
+    "deadlines": [],
+    "nextRoundNote": "The 2027 Q1 cohort (Jan 18 – Apr 30, 2027) is announced, but no application window is published yet.",
+    "formVisibility": "closed",
+    "programDates": "18 January – 30 April 2027 (15 weeks)",
+    "format": "in-person",
+    "locations": [
+      "London, UK"
+    ],
+    "locationNotes": "In-person at the London Initiative for Safe AI (LISA). FAQ: 'We make rare exceptions for people with a strong independent research track record. If you can't fully be in-person, apply either way and flag it in the form.' Pivotal does not employ fellows (stipend agreement); meeting UK entry requirements is the fellow's responsibility, though Pivotal has an info doc and 'can sometimes help'. Mentors may be remote.",
+    "compensation": "£6,000 (Fellow) or £8,000 (Senior Fellow) stipend, plus travel to/from London, £2,400 towards housing for non-London fellows, weekday lunch and dinner, and compute",
+    "commitment": "full-time, 15 weeks",
+    "eligibilityNotes": [
+      "Anyone 18 or older ('Your background matters less than motivation and ability').",
+      "Senior Fellows (significant experience, such as a PhD, industry track record, or strong publications) receive £8,000 instead of £6,000.",
+      "Must apply to at least one mentor ('You need to apply to at least one mentor').",
+      "Full-time; 'Small side commitments are usually fine and you can mention them in your application.'",
+      "In-person in London; remote only in rare exceptions, which must be flagged in the form.",
+      "Not employed by Pivotal; applicants are responsible for UK entry requirements."
+    ],
+    "publishedTimeEstimate": {
+      "text": "Written application ~1–2 hours (fellowship page). The 2026 Q3 announcement said the main form takes most people under an hour, plus 15–30 minutes for each mentor-specific section.",
+      "sourceUrl": "https://www.pivotal-research.org/fellowship"
+    },
+    "aiPolicy": {
+      "stance": "not-stated",
+      "summary": "No policy on AI/LLM use in applications was found on the fellowship page, the LessWrong announcement, or the closed form notices.",
+      "quote": null,
+      "sourceUrl": "https://www.pivotal-research.org/fellowship"
+    },
+    "stages": [
+      {
+        "id": "application",
+        "name": "Step 1: Written application",
+        "description": "'You, your interests, mentor preferences.' A shared main form plus a mentor-specific section for each mentor applied to (2026 Q3: main form under an hour, each mentor section 15–30 minutes). Fellowship page estimate: 1–2h.",
+        "phase": "application",
+        "known": true
+      },
+      {
+        "id": "video-interview",
+        "name": "Step 2: Video interview",
+        "description": "Shortlisted candidates only. 'Short recorded interview.' Estimate <10m. The mentor-call page calls these 'automated interviews'.",
+        "phase": "later",
+        "known": true
+      },
+      {
+        "id": "work-task",
+        "name": "Step 3: Work task",
+        "description": "Shortlisted candidates only. 'Mentor-specific research exercise.' Estimate 1–3h.",
+        "phase": "later",
+        "known": true
+      },
+      {
+        "id": "personal-interview",
+        "name": "Step 4: Personal interview",
+        "description": "'With the team or your mentors.' Estimate 30–45m. Mentors 'run personal interviews and make the final decisions' (mentor-call page); selection by Thursday 10 December 2026 for the 2027 Q1 cohort.",
+        "phase": "later",
+        "known": true
+      }
+    ],
+    "sources": [
+      {
+        "label": "Fellowship page",
+        "url": "https://www.pivotal-research.org/fellowship",
+        "accessed": "2026-09-25",
+        "note": "2027 Q1 dates (18 January to 30 April 2027, 15 weeks, LISA London), stipend £6k–£8k, £2,400 housing, 4-step process with time estimates, FAQ. Offers only 'Express interest'."
+      },
+      {
+        "label": "Application redirect /apply",
+        "url": "https://www.pivotal-research.org/apply",
+        "accessed": "2026-09-25",
+        "note": "Redirects to https://form.fillout.com/t/fmFyKzKeaFus: 'Form closed to new submissions' with a late-application link to https://form.fillout.com/t/skUicWwn4Kus (also closed), which links to https://form.fillout.com/t/nXrT8K31PBus: '26.Q3 Applications Now Closed' / 'Express Interest in Future Cohorts'. No question prompts visible."
+      },
+      {
+        "label": "LessWrong post 'Pivotal Research Fellowship applications are open (deadline May 3)' by Tobias H (posted 2026-04-20)",
+        "url": "https://www.lesswrong.com/posts/ZdtQcpFaqmrgmueF5/pivotal-research-fellowship-applications-are-open-deadline",
+        "accessed": "2026-09-25",
+        "note": "2026 Q3 round: dates June 29 – August 28, 2026, deadline May 3, 2026, decisions by May 22. Time estimates for main form and mentor-specific sections, and later stages (video interview, mentor-specific work task, personal interview). Fetched via LessWrong GraphQL."
+      },
+      {
+        "label": "2026 Q3 application form (linked from LessWrong post)",
+        "url": "https://form.fillout.com/t/psmu44xbBVus",
+        "accessed": "2026-09-25",
+        "note": "'Form closed to new submissions'; late-application link to https://form.fillout.com/t/nXrT8K31PBus."
+      },
+      {
+        "label": "Pivotal Application Portal",
+        "url": "https://apply.pivotal-research.org/",
+        "accessed": "2026-09-25",
+        "note": "Sign-in page only. Shows stale 'Deadline to apply: Sun, 30 November 2025' (prior Q1 2026 round). Did not sign in."
+      },
+      {
+        "label": "Mentoring at Pivotal (Q1 2027 call for mentors)",
+        "url": "https://www.pivotal-research.org/mentoring-at-pivotal",
+        "accessed": "2026-09-25",
+        "note": "Mentor applications 'Closed Wed 16 September 2026'; fellow selection 'By Thursday 10 December 2026'; fellow 'Applies, then does a work test and interviews'; '> 30 fellows (~2% acceptance rate)'."
+      },
+      {
+        "label": "Mentors page",
+        "url": "https://www.pivotal-research.org/mentors",
+        "accessed": "2026-09-25",
+        "note": "Lists '2026 Q3 AI Safety Mentors' (21 mentors); 2027 Q1 fellow-facing mentor list not yet published."
+      },
+      {
+        "label": "Express interest form (Airtable)",
+        "url": "https://airtable.com/app4EVBGDuFSSk5PR/pag2QU4pcGP3AJjot/form",
+        "accessed": "2026-09-25",
+        "note": "Generic updates form (name, email, interests). Not the application. Not submitted."
+      },
+      {
+        "label": "Late-application form (closed)",
+        "url": "https://form.fillout.com/t/nXrT8K31PBus",
+        "accessed": "2026-09-25",
+        "note": "Shows '26.Q3 Applications Now Closed' and 'Express Interest in Future Cohorts'."
+      }
+    ],
+    "notes": "No fellow application is open as of 2026-09-25. The question inventory comes from official descriptions: the 2026 Q3 LessWrong announcement and the current fellowship page FAQ. The closed forms no longer show exact prompts, so all prompts are paraphrased or unknown. The last round's deadline (May 3, 2026) had no stated timezone. Estimates differ: the 2026 Q3 post says main form under an hour plus 15–30 minutes per mentor section, while the current page says ~1–2 hours for the written application. Acceptance rate is ~3% per the LessWrong post and ~2% per the mentor-call page. Housing support was £2,000 in 2026 Q3 and is £2,400 on the current page. The earlier Pivotal application portal (apply.pivotal-research.org) still shows the 30 November 2025 deadline. No AI-use policy found. Next round: The 2027 Q1 cohort (18 January – 30 April 2027) is announced, but no fellow application window or deadline is published yet. The mentor-call page (mentor applications closed Wed 16 September 2026) says mentors choose fellows 'By Thursday 10 December 2026', so fellow applications should fall between late September and early December 2026. That window is inferred, not announced. The most recent fellow round (2026 Q3, June 29 – August 28, 2026) closed May 3, 2026."
+  },
+  "questions": [
+    {
+      "id": "pivotal-about-you",
+      "prompt": "Information about you and your background (exact fields not published)",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "identity-cv",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "unknown",
+      "aiRule": null,
+      "sourceUrl": "https://www.pivotal-research.org/fellowship",
+      "verifiedOn": "2026-09-25",
+      "notes": "Fellowship page describes the written application as 'You, your interests, mentor preferences.' Specific fields (contact details, CV, links, Senior Fellow eligibility, etc.) are not published; format is a placeholder.",
+      "reuse": "dossier",
+      "dossierField": "cv"
+    },
+    {
+      "id": "pivotal-interests",
+      "prompt": "Your interests (research interests / motivation; exact prompts not published)",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "interests-motivation",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "unknown",
+      "aiRule": null,
+      "sourceUrl": "https://www.pivotal-research.org/fellowship",
+      "verifiedOn": "2026-09-25",
+      "notes": "From the fellowship page's Step 1 description: 'You, your interests, mentor preferences.' Number and wording of questions unknown.",
+      "dossierField": "researchInterests"
+    },
+    {
+      "id": "pivotal-mentor-preferences",
+      "prompt": "Mentor preferences: choose the mentor(s) you are applying to (at least one)",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "program-fit",
+      "stage": "application",
+      "format": "multi-select",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.pivotal-research.org/fellowship",
+      "verifiedOn": "2026-09-25",
+      "notes": "FAQ: 'You need to apply to at least one mentor.' Step 1 lists 'mentor preferences'. Whether this is a multi-select, ranking or per-mentor opt-in is not published. The 2027 Q1 mentor list is not yet published (the mentors page shows 2026 Q3 mentors)."
+    },
+    {
+      "id": "pivotal-mentor-specific-questions",
+      "prompt": "Mentor-specific questions for each mentor applied to (exact prompts not published)",
+      "promptVisibility": "unknown",
+      "helpText": null,
+      "category": "program-fit",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "unknown",
+      "aiRule": null,
+      "sourceUrl": "https://www.lesswrong.com/posts/ZdtQcpFaqmrgmueF5/pivotal-research-fellowship-applications-are-open-deadline",
+      "verifiedOn": "2026-09-25",
+      "notes": "Prompts vary by mentor and were never published. The 2026 Q3 announcement estimated 15–30 minutes per mentor-specific section (a time estimate, not a length limit)."
+    },
+    {
+      "id": "pivotal-in-person-flag",
+      "prompt": "Flag if you can't fully be in person in London",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "availability-eligibility",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "unknown",
+      "aiRule": null,
+      "sourceUrl": "https://www.pivotal-research.org/fellowship",
+      "verifiedOn": "2026-09-25",
+      "notes": "FAQ: 'If you can't fully be in-person, apply either way and flag it in the form.' Field wording/format not published; format is a placeholder.",
+      "dossierField": "locationPreferences"
+    },
+    {
+      "id": "pivotal-side-commitments",
+      "prompt": "Mention any small side commitments alongside the full-time fellowship",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "availability-eligibility",
+      "stage": "application",
+      "format": "long-text",
+      "options": null,
+      "statedLength": null,
+      "lengthStatus": "unknown",
+      "required": "unknown",
+      "aiRule": null,
+      "sourceUrl": "https://www.pivotal-research.org/fellowship",
+      "verifiedOn": "2026-09-25",
+      "notes": "FAQ: 'The fellowship is full-time. Small side commitments are usually fine and you can mention them in your application.' Field wording/format not published; format is a placeholder.",
+      "dossierField": "commitments"
+    },
+    {
+      "id": "pivotal-work-task",
+      "prompt": "Mentor-specific work task (research exercise) for shortlisted candidates (exact task not published)",
+      "promptVisibility": "paraphrased",
+      "helpText": null,
+      "category": "research-judgment",
+      "stage": "work-task",
+      "format": "timed-task",
+      "options": null,
+      "statedLength": {
+        "unit": "minutes",
+        "min": 60,
+        "max": 180,
+        "text": "1–3h"
+      },
+      "lengthStatus": "stated",
+      "required": "required",
+      "aiRule": null,
+      "sourceUrl": "https://www.pivotal-research.org/fellowship",
+      "verifiedOn": "2026-09-25",
+      "notes": "Fellowship page Step 3: 'Work task — Mentor-specific research exercise. 1–3h.' Only for shortlisted candidates, after the <10m recorded video interview. 'required' applies to candidates invited to this stage."
+    }
+  ]
+}
