@@ -1,16 +1,15 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
-import { PROGRAMS } from './data/inventory';
-import { STORAGE_KEY } from './state/workspace';
-import { AppProviders } from './state/providers';
+import { STORAGE_KEY } from './state/app';
+import { Providers } from './state/store';
 
 function renderApp() {
   return render(
-    <AppProviders>
+    <Providers>
       <App />
-    </AppProviders>,
+    </Providers>,
   );
 }
 
@@ -21,147 +20,82 @@ async function go(hash: string) {
   });
 }
 
-describe('applicant walkthrough', () => {
+describe('applying through the Common App', () => {
   beforeAll(() => {
-    // Pin "now" to the verification date so round status matches the sources.
+    // Round status depends on the date; pin it to the day the program details were checked.
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-09-25T12:00:00Z'));
   });
   afterAll(() => vi.useRealTimers());
   beforeEach(() => localStorage.clear());
 
-  it('compares programs without showing any closed round as open', () => {
+  it('welcomes a first-time visitor with the three steps', () => {
     renderApp();
-    for (const p of PROGRAMS) {
-      const badge = within(screen.getByTestId(`program-${p.id}`)).getByTestId(`round-${p.id}`);
-      const expected = ['anthropic-fellows', 'iliad', 'iaps'].includes(p.id) ? 'open' : 'closed';
-      expect(badge.dataset.state, p.id).toBe(expected);
-      if (expected === 'closed') expect(badge).not.toHaveTextContent(/^Open/);
-    }
+    expect(screen.getByRole('heading', { name: 'Apply to AI safety fellowships with one application.' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Start my application' })).toHaveAttribute('href', '#/application/profile');
   });
 
-  it('rules out a closed round and a location conflict, then keeps them ruled out after a reload', async () => {
+  it('takes the sample applicant from the dashboard to a submitted application', async () => {
     const user = userEvent.setup();
-    const { unmount } = renderApp();
+    renderApp();
+    await user.click(screen.getByRole('button', { name: /look around with a sample applicant/i }));
 
-    const lasr = screen.getByTestId('program-lasr');
-    await user.click(within(lasr).getByRole('button', { name: /rule out: closed round/i }));
-    expect(within(lasr).getByText(/Round closed: deadline passed sep 20, 2026/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Welcome back, Talia' })).toBeInTheDocument();
+    const row = screen.getByTestId('row-anthropic-fellows');
+    expect(row).toHaveTextContent('2 of 3');
+    expect(row).toHaveTextContent('In progress');
 
-    await user.click(screen.getByLabelText(/hide location conflicts/i));
-    expect(screen.queryByTestId('program-pibbss')).not.toBeInTheDocument();
-    await user.click(screen.getByLabelText(/hide location conflicts/i));
+    // One more recommendation covers the program's requirement.
+    await go('#/recommenders');
+    await user.click(within(screen.getByTestId('rec-3')).getByRole('button', { name: 'Send request' }));
+    expect(screen.getByTestId('rec-3')).toHaveTextContent('Requested');
+
+    await go('#/programs/anthropic-fellows');
+    const submit = screen.getByRole('button', { name: 'Submit to Anthropic Fellows' });
+    expect(submit).toBeDisabled();
+    await user.click(screen.getByLabelText(/review Anthropic's AI policy/i));
+    await user.click(screen.getByLabelText(/Send my Common Application/i));
+    expect(submit).toBeEnabled();
+    await user.click(submit);
+    expect(screen.getByTestId('submitted')).toHaveTextContent('Submitted');
+
+    await user.click(screen.getByRole('link', { name: /See what Anthropic Fellows receives/ }));
+    const packet = screen.getByTestId('packet');
+    expect(packet).toHaveTextContent('Talia Nwosu-Berg (sample)');
+    expect(packet).toHaveTextContent('Why are you interested in participating in the Fellows program?');
+    expect(packet).toHaveTextContent(/Submitted/);
 
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
-    expect(saved.programs.lasr.status).toBe('ruled-out');
-
-    unmount();
-    renderApp();
-    expect(within(screen.getByTestId('program-lasr')).getByText(/Round closed/)).toBeInTheDocument();
+    expect(saved.programs['anthropic-fellows'].submittedAt).toBeTruthy();
   });
 
-  it('reuses a dossier artifact and separates original answers', async () => {
+  it('keeps closed rounds from being submitted', async () => {
     const user = userEvent.setup();
     renderApp();
-
-    await go('#/program/anthropic-fellows');
-    const workLinks = await screen.findByTestId('q-anthropic-fellows-work-links');
-    expect(workLinks).not.toHaveClass('done');
-    await user.click(within(workLinks).getByLabelText(/probe-drift/));
-    expect(workLinks).toHaveClass('done');
-
-    await go('#/program/iliad');
-    const original = await screen.findByTestId('section-original');
-    expect(within(original).getByText(/two most difficult mathematical concepts/)).toBeInTheDocument();
-    const tailor = screen.getByTestId('section-tailor');
-    expect(within(tailor).getByText('Why are you applying to this program?')).toBeInTheDocument();
+    await go('#/programs/lasr');
+    expect(screen.getByText('Applications are closed for this round.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Save for next round' }));
+    expect(screen.getByRole('button', { name: 'Submit to LASR Labs' })).toBeDisabled();
+    expect(screen.getByTestId('blockers')).toHaveTextContent('This round is closed.');
   });
 
-  it('labels unpublished prompts as not published', async () => {
-    renderApp();
-    await go('#/program/pivotal');
-    const unseen = await screen.findByTestId('not-yet-visible');
-    const badge = within(unseen).getByText('Prompt not published');
-    expect(badge).toHaveAttribute('data-visibility', 'unknown');
-    expect(screen.queryByText('Exact prompt')).not.toBeInTheDocument();
-  });
-
-  it('exports the preparation checklist as Markdown', async () => {
+  it('filters the directory to open rounds', async () => {
     const user = userEvent.setup();
-    const blobs: Blob[] = [];
-    const create = vi.spyOn(URL, 'createObjectURL').mockImplementation((b) => {
-      blobs.push(b as Blob);
-      return 'blob:checklist';
-    });
-    const revoke = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
-    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
-
     renderApp();
-    await user.click(within(screen.getByTestId('program-lasr')).getByRole('button', { name: /rule out/i }));
-    await user.click(screen.getByRole('button', { name: 'Export checklist' }));
-
-    expect(blobs).toHaveLength(1);
-    const md = await blobs[0]!.text();
-    expect(md).toContain('# Application preparation checklist');
-    expect(md).toContain('## Anthropic Fellows');
-    expect(md).toMatch(/## Ruled out\n\n- LASR Labs — Round closed/);
-    [create, revoke, click].forEach((s) => s.mockRestore());
-  });
-});
-
-describe('status over time', () => {
-  afterEach(() => vi.useRealTimers());
-
-  const at = (iso: string) => {
-    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] });
-    vi.setSystemTime(new Date(iso));
-  };
-
-  it('keeps Iliad open for its later cohort', async () => {
-    at('2026-10-01T12:00:00Z');
-    renderApp();
-    expect(screen.getByTestId('round-iliad')).toHaveAttribute('data-state', 'open');
-    expect(screen.getByTestId('round-iliad')).toHaveTextContent('Closes Oct 19, 2026 (Dec 2026 Fellowship)');
-    // fireEvent is synchronous; user-event would wait on the faked setTimeout.
-    fireEvent.click(screen.getByLabelText(/open rounds only/i));
-    expect(screen.getByTestId('program-iliad')).toBeInTheDocument();
-    expect(screen.queryByTestId('program-iaps')).not.toBeInTheDocument();
+    await go('#/programs');
+    expect(screen.getAllByTestId(/^card-/)).toHaveLength(8);
+    await user.click(screen.getByLabelText('Open now only'));
+    expect(screen.getAllByTestId(/^card-/).map((c) => c.dataset.testid)).toEqual(['card-anthropic-fellows', 'card-iliad', 'card-iaps']);
   });
 
-  it('closes a round on an open page when its deadline passes', async () => {
-    at('2026-09-27T23:58:00-04:00');
+  it('points applicants to the forms that actually take applications', async () => {
     renderApp();
-    fireEvent.click(screen.getByLabelText(/open rounds only/i));
-    expect(screen.getByTestId('round-iaps')).toHaveAttribute('data-state', 'open');
-
-    // Step through time so each re-render can schedule its next wake-up.
-    for (let i = 0; i < 4; i++) {
-      await act(async () => {
-        vi.advanceTimersByTime(30_000);
-      });
-    }
-    expect(screen.queryByTestId('program-iaps')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByLabelText(/open rounds only/i));
-    expect(screen.getByTestId('round-iaps')).toHaveAttribute('data-state', 'closed');
-    expect(screen.getByTestId('round-iaps')).toHaveTextContent('Deadline passed Sep 27, 2026');
-  });
-
-  it('presents a stale rolling status as unverified, not closed', async () => {
-    at('2026-10-20T12:00:00Z');
-    renderApp();
-    expect(screen.getByTestId('round-anthropic-fellows')).toHaveAttribute('data-state', 'unknown');
-
-    await go('#/program/anthropic-fellows');
-    const callout = screen.getByTestId('round-callout');
-    expect(callout).toHaveTextContent('Check the official page before applying');
-    expect(screen.queryByText(/not accepting applications/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/closed round/)).not.toBeInTheDocument();
-    expect(within(screen.getByTestId('q-anthropic-fellows-email')).getByText(/Exact prompt/)).toHaveTextContent(
-      'Exact prompt · as of Sep 25, 2026',
+    await go('#/resources');
+    const deadlines = screen.getByRole('region', { name: 'Deadlines and official links' });
+    const row = within(deadlines).getByRole('row', { name: /Anthropic Fellows/ });
+    expect(within(row).getByRole('link', { name: /Official application/ })).toHaveAttribute(
+      'href',
+      'https://airtable.com/appCHLjgoTUCJMLct/pagUhpiBE5KxoU3lX/form',
     );
-
-    await go('#/program/lasr');
-    expect(screen.getByTestId('round-callout')).toHaveTextContent('This round is not accepting applications');
-    expect(within(screen.getByTestId('q-lasr-email')).getByText(/Exact prompt/)).toHaveTextContent('Exact prompt · closed round');
   });
 });

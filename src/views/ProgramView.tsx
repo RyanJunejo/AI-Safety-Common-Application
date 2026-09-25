@@ -1,529 +1,221 @@
-import type { Program, Question, ReuseClass } from '../data/schema';
-import { getProgram } from '../data/inventory';
-import { AiBadge, ExternalLink, FitBadge, Meter, ReuseBadge, RoundBadge, VisibilityBadge } from '../components/Badges';
-import { checklistMarkdown, downloadText } from '../domain/export';
-import { locationFit, programPrep, readinessPercent, type PrepItem, type ProgramPrep } from '../domain/prep';
-import { formatDeadline, formatVerified, lastVerified, roundStatus, sortedDeadlines, type RoundState } from '../domain/round';
-import { useNow } from '../state/clock';
-import { countWords, FORMAT_LABEL, lengthLabel, REUSE_META, REUSE_ORDER } from '../domain/taxonomy';
+import { catalogProgram, type CatalogProgram } from '../data/catalog';
+import { aiRuleText, Check, ExternalLink, QuestionInput, RoundPill } from '../components/ui';
+import { requirements } from '../logic';
 import { href } from '../router';
-import { useWorkspace } from '../state/store';
-import {
-  ANSWER_STATUSES,
-  ANSWER_STATUS_LABEL,
-  APPLICATION_STATUSES,
-  APPLICATION_STATUS_LABEL,
-  progressFor,
-  type AnswerProgress,
-  type AnswerStatus,
-  type ApplicationStatus,
-} from '../state/workspace';
+import { EMPTY_ENTRY } from '../state/app';
+import { useNow } from '../state/clock';
+import { useStore } from '../state/store';
+import { extraWork } from './ProgramsView';
+
+/** Confirmation that applies to every program: sharing the Common Application with it. */
+export const SHARE_CONSENT = 'common-app-share';
+
+const submittedFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 
 export function ProgramView({ id }: { id: string }) {
-  const program = getProgram(id);
-  if (!program) {
+  const c = catalogProgram(id);
+  if (!c) {
     return (
       <section>
         <h1>Program not found</h1>
-        <p>
-          <a href={href({ name: 'programs' })}>Back to all programs</a>
-        </p>
+        <a href={href({ name: 'programs' })}>Back to programs</a>
       </section>
     );
   }
-  return <ProgramPrepView program={program} />;
+  return <ProgramPage c={c} />;
 }
 
-function ProgramPrepView({ program }: { program: Program }) {
-  const { ws, dispatch } = useWorkspace();
-  const prep = programPrep(program, ws);
-  const progress = progressFor(ws, program.id);
-  const fit = locationFit(program, ws.dossier);
+function ProgramPage({ c }: { c: CatalogProgram }) {
+  const { state, dispatch } = useStore();
   const now = useNow();
-  const round = roundStatus(program, now);
-  const roundState = round.state;
-  const verified = lastVerified(program);
-
-  const update = (questionId: string, patch: Partial<AnswerProgress>) =>
-    dispatch({ type: 'answer/update', programId: program.id, questionId, patch });
-
-  const exportOne = () =>
-    downloadText(`${program.id}-checklist-${now.toISOString().slice(0, 10)}.md`, checklistMarkdown(ws, now, program.id));
+  const p = c.program;
+  const entry = state.programs[p.id];
+  const req = requirements(state, c, now);
+  const e = entry ?? EMPTY_ENTRY;
+  const closed = req.round.state === 'closed';
+  const pastRound = closed && p.formVisibility !== 'closed';
+  const described = [...c.choices, ...c.questions].some((q) => q.promptVisibility !== 'verbatim');
+  const aiRule = aiRuleText(p);
+  const later = p.stages.filter((s) => s.phase === 'later');
+  const confirmsDone = c.confirmations.every((q) => e.confirmations[q.id]) && e.confirmations[SHARE_CONSENT];
+  const canSubmit = req.status === 'ready' && confirmsDone;
 
   return (
-    <article className="prep" aria-labelledby="prep-title">
+    <article className="program" aria-labelledby="program-title">
       <p className="crumb">
         <a href={href({ name: 'programs' })}>← All programs</a>
       </p>
 
-      <header className="prep-head">
+      <header className="program-head">
         <div>
-          <h1 id="prep-title">{program.name}</h1>
-          <p className="pc-sub">
-            {program.fullName} · {program.organization}
-            {program.cohort ? ` · ${program.cohort}` : ''}
-          </p>
-          <div className="pc-badges">
-            <RoundBadge program={program} withDetail />
-            <FitBadge fit={fit} />
-            <AiBadge program={program} />
+          <div className="card-top">
+            <span className="focus">{c.focus}</span>
+            <RoundPill program={p} />
           </div>
+          <h1 id="program-title">{p.name}</h1>
+          <p className="lede">{c.blurb}</p>
         </div>
-        <div className="prep-status">
-          <label className="mini-label" htmlFor="app-status">
-            Your application status
-          </label>
-          <select
-            id="app-status"
-            value={progress.status}
-            onChange={(e) =>
-              dispatch({ type: 'program/status', programId: program.id, status: e.target.value as ApplicationStatus })
-            }
-          >
-            {APPLICATION_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {APPLICATION_STATUS_LABEL[s]}
-              </option>
+        <dl className="facts">
+          <div>
+            <dt>Dates</dt>
+            <dd>{p.programDates ?? 'Not published'}</dd>
+          </div>
+          <div>
+            <dt>Where</dt>
+            <dd>{p.locations.join(' / ')}</dd>
+          </div>
+          <div>
+            <dt>Stipend</dt>
+            <dd>{c.stipend}</dd>
+          </div>
+          <div>
+            <dt>Official links</dt>
+            <dd>
+              <ExternalLink href={p.applyUrl}>Application form</ExternalLink>
+              {p.infoUrl !== p.applyUrl && (
+                <>
+                  {' · '}
+                  <ExternalLink href={p.infoUrl}>Program page</ExternalLink>
+                </>
+              )}
+            </dd>
+          </div>
+        </dl>
+      </header>
+
+      {c.goodToKnow && <p className="note">{c.goodToKnow}</p>}
+      {closed && (
+        <p className="note note-closed" role="note">
+          <strong>Applications are closed for this round.</strong> {req.round.detail}.{p.nextRoundNote ? ` ${p.nextRoundNote}` : ''} You can
+          still save the program and prepare your answers.
+        </p>
+      )}
+
+      {!entry ? (
+        <section className="panel add-panel" aria-labelledby="asks">
+          <h2 id="asks">What {p.name} asks beyond the Common App</h2>
+          <p className="muted">{extraWork(c)}</p>
+          <ul className="ask-list">
+            {[...c.choices, ...c.questions].map((q) => (
+              <li key={q.id}>{q.prompt}</li>
             ))}
-          </select>
-          <Meter value={readinessPercent(prep)} label="Readiness" />
-          <p className="pc-ready" data-testid="readiness">
-            {prep.requiredDone} of {prep.requiredTotal} required items ready
-          </p>
-          <div className="pc-links">
-            <button type="button" className="btn btn-small" onClick={exportOne}>
-              Export this checklist
+            {c.extraSteps.map((s) => (
+              <li key={s} className="muted">
+                {s}
+              </li>
+            ))}
+          </ul>
+          <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'program/add', programId: p.id })}>
+            {closed ? 'Save for next round' : 'Add to my programs'}
+          </button>
+        </section>
+      ) : (
+        <div className="program-body">
+          <aside className="panel requirements" aria-labelledby="req-title">
+            <h2 id="req-title">Requirements</h2>
+            <ul className="req-list">
+              <li>
+                <Check done={req.commonApp} />
+                <a href={href({ name: 'application' })}>Common Application</a>
+              </li>
+              <li>
+                <Check done={req.questions.answered === req.questions.total} />
+                Program questions · {req.questions.answered} of {req.questions.total}
+              </li>
+              {req.recommenders.need > 0 && (
+                <li>
+                  <Check done={req.recommenders.have >= req.recommenders.need} />
+                  <a href={href({ name: 'recommenders' })}>Recommenders</a> · {req.recommenders.have} of {req.recommenders.need}
+                </li>
+              )}
+            </ul>
+            {c.extraSteps.length > 0 && (
+              <>
+                <h3>Also part of this application</h3>
+                <ul className="plain small">
+                  {c.extraSteps.map((s) => (
+                    <li key={s}>{s}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            <button type="button" className="link-btn small" onClick={() => dispatch({ type: 'program/remove', programId: p.id })}>
+              Remove from my programs
             </button>
-            <ExternalLink href={program.applyUrl} className="btn btn-small btn-primary">
-              {round.state === 'open' ? 'Apply on official form' : 'Official application page'}
-            </ExternalLink>
+          </aside>
+
+          <div className="program-main">
+            <section className="panel" aria-labelledby="pq-title">
+              <h2 id="pq-title">{p.name} questions</h2>
+              {pastRound && <p className="muted small">These are the questions from the last round. The next round may change them.</p>}
+              {described && (
+                <p className="muted small">The exact wording isn’t public, so these follow how {p.name} describes its application.</p>
+              )}
+              {aiRule && <p className="ai-rule">{aiRule}</p>}
+              {[...c.choices, ...c.questions].map((q) => (
+                <QuestionInput
+                  key={q.id}
+                  q={q}
+                  value={e.answers[q.id]}
+                  onChange={(value) => dispatch({ type: 'answer', programId: p.id, questionId: q.id, value })}
+                />
+              ))}
+            </section>
+
+            <section className="panel submit-panel" aria-labelledby="submit-title">
+              <h2 id="submit-title">Review and submit</h2>
+              {entry.submittedAt ? (
+                <div className="submitted" data-testid="submitted">
+                  <p>
+                    <strong>Submitted {submittedFmt.format(new Date(entry.submittedAt))}.</strong> {p.name} receives your Common Application,
+                    your answers above, and your recommenders’ details.
+                  </p>
+                  {later.length > 0 && <p className="muted">What happens next: {later.map((s) => s.name).join(' → ')}.</p>}
+                  <a href={href({ name: 'inbox', programId: p.id })}>See what {p.name} receives →</a>
+                </div>
+              ) : (
+                <>
+                  <div className="confirmations">
+                    {c.confirmations.map((q) => (
+                      <label key={q.id} className="choice">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(e.confirmations[q.id])}
+                          onChange={(ev) => dispatch({ type: 'confirm', programId: p.id, questionId: q.id, value: ev.target.checked })}
+                        />{' '}
+                        {q.prompt}
+                      </label>
+                    ))}
+                    <label className="choice">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(e.confirmations[SHARE_CONSENT])}
+                        onChange={(ev) => dispatch({ type: 'confirm', programId: p.id, questionId: SHARE_CONSENT, value: ev.target.checked })}
+                      />{' '}
+                      Send my Common Application, these answers, and my recommenders’ details to {p.name}.
+                    </label>
+                  </div>
+                  {req.blockers.length > 0 && (
+                    <ul className="blockers" data-testid="blockers">
+                      {req.blockers.map((b) => (
+                        <li key={b}>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={!canSubmit}
+                    onClick={() => dispatch({ type: 'submit', programId: p.id, at: new Date().toISOString() })}
+                  >
+                    Submit to {p.name}
+                  </button>
+                </>
+              )}
+            </section>
           </div>
         </div>
-      </header>
-
-      {round.state === 'closed' && (
-        <div className="callout callout-closed" role="note" data-testid="round-callout">
-          <strong>This round is not accepting applications.</strong> {round.detail}.
-          {program.nextRoundNote && <> {program.nextRoundNote}</>} You can still prepare: facts in your dossier carry over to the next
-          round.
-        </div>
       )}
-      {round.state === 'unknown' && (
-        <div className="callout callout-recheck" role="note" data-testid="round-callout">
-          <strong>Check the official page before applying.</strong> {round.detail}. This workspace can’t confirm whether the round is
-          still open.
-        </div>
-      )}
-
-      <dl className="facts">
-        <Fact term="Dates">
-          {program.programDates ?? 'Not published'}
-          <Deadlines program={program} now={now} />
-        </Fact>
-        <Fact term="Where">
-          {program.locations.join(' / ') || 'Not published'}
-          {program.locationNotes && <small>{program.locationNotes}</small>}
-        </Fact>
-        <Fact term="Support">{program.compensation ?? 'Not published'}</Fact>
-        <Fact term="Commitment">{program.commitment ?? 'Not published'}</Fact>
-        <Fact term="Published time estimate">
-          {program.publishedTimeEstimate ? (
-            <>
-              {program.publishedTimeEstimate.text}{' '}
-              <ExternalLink href={program.publishedTimeEstimate.sourceUrl}>source</ExternalLink>
-            </>
-          ) : (
-            'Not published'
-          )}
-        </Fact>
-        <Fact term="Verified">
-          {formatVerified(verified)} · <a href={href({ name: 'sources' })}>sources</a>
-        </Fact>
-      </dl>
-
-      <section className={`ai-policy ai-${program.aiPolicy.stance}`} aria-labelledby="ai-title">
-        <h2 id="ai-title">AI use in this application</h2>
-        <p>{program.aiPolicy.summary}</p>
-        {program.aiPolicy.quote && <blockquote>{program.aiPolicy.quote}</blockquote>}
-        {program.aiPolicy.sourceUrl && <ExternalLink href={program.aiPolicy.sourceUrl}>Program’s policy</ExternalLink>}
-      </section>
-
-      <AtAGlance prep={prep} />
-
-      <Stages program={program} />
-
-      <DossierSection items={prep.groups.dossier} update={update} roundState={roundState} />
-      <WritingSection reuse="tailor" items={prep.groups.tailor} update={update} program={program} roundState={roundState} />
-      <WritingSection reuse="original" items={prep.groups.original} update={update} program={program} roundState={roundState} />
-      <AttestSection items={prep.groups.attest} update={update} roundState={roundState} />
-      <UnseenSection
-        title="Not yet published"
-        lede="These questions exist but their exact wording is not public. Check the official form when the round opens."
-        questions={prep.notYetVisible}
-        testId="not-yet-visible"
-        roundState={roundState}
-      />
-      <UnseenSection
-        title="Later stages, if shortlisted"
-        lede="Tasks, assessments, and interviews that come after the upfront application. Not counted in readiness."
-        questions={prep.later}
-        testId="later-stages"
-        roundState={roundState}
-      />
     </article>
-  );
-}
-
-/** What is left, per way of preparing, with jump links to each section. */
-function AtAGlance({ prep }: { prep: ProgramPrep }) {
-  const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  const cells = REUSE_ORDER.filter((r) => prep.groups[r].length > 0).map((r) => {
-    const counted = prep.groups[r].filter((i) => i.counted);
-    return { id: `sec-${r}`, reuse: r, left: counted.filter((i) => !i.done).length, total: counted.length };
-  });
-  return (
-    <nav className="glance" aria-label="What this application still needs" data-testid="at-a-glance">
-      {cells.map((c) => (
-        <button key={c.id} type="button" className={`glance-cell reuse-${c.reuse}-soft`} onClick={() => jump(c.id)}>
-          <span className="glance-n">{c.left}</span>
-          <span className="glance-label">
-            {REUSE_META[c.reuse].label}
-            <small>
-              left of {c.total} required
-            </small>
-          </span>
-        </button>
-      ))}
-      {prep.notYetVisible.length > 0 && (
-        <button type="button" className="glance-cell mix-unknown-soft" onClick={() => jump('sec-unseen')}>
-          <span className="glance-n">{prep.notYetVisible.length}</span>
-          <span className="glance-label">
-            Not yet published
-            <small>prompts to check when the round opens</small>
-          </span>
-        </button>
-      )}
-    </nav>
-  );
-}
-
-/** Every stated deadline, marked when it has passed. */
-function Deadlines({ program, now }: { program: Program; now: Date }) {
-  const deadlines = sortedDeadlines(program);
-  if (deadlines.length === 0) return <small>No application deadline stated</small>;
-  return (
-    <small data-testid="deadlines">
-      {deadlines.map((d, i) => {
-        const passed = now.getTime() > Date.parse(d.at);
-        return (
-          <span key={d.at} className={passed ? 'deadline passed' : 'deadline'}>
-            {i > 0 && '; '}
-            {deadlines.length > 1 && d.label ? `${d.label}: ` : 'Deadline: '}
-            {formatDeadline(d.at)}
-            {passed && ' (passed)'}
-          </span>
-        );
-      })}
-    </small>
-  );
-}
-
-function Fact({ term, children }: { term: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <dt>{term}</dt>
-      <dd>{children}</dd>
-    </div>
-  );
-}
-
-function Stages({ program }: { program: Program }) {
-  return (
-    <section aria-labelledby="stages-title" className="stages">
-      <h2 id="stages-title">Stages</h2>
-      <ol>
-        {program.stages.map((s) => (
-          <li key={s.id} className={s.phase === 'application' ? 'stage upfront' : 'stage'}>
-            <span className="stage-name">{s.name}</span>
-            <span className="stage-desc">{s.description}</span>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-function SectionHead({ reuse, count, done }: { reuse: ReuseClass; count: number; done: number }) {
-  return (
-    <header className="section-head">
-      <h2 id={`sec-${reuse}`}>
-        <span className={`swatch reuse-${reuse}`} aria-hidden="true" /> {REUSE_META[reuse].label}
-        <span className="section-count">
-          {done}/{count}
-        </span>
-      </h2>
-      <p>{REUSE_META[reuse].description}</p>
-    </header>
-  );
-}
-
-function requiredLabel(q: Question): string {
-  if (q.condition) return `If applicable: ${q.condition}`;
-  if (q.required === 'required') return 'Required';
-  return q.required === 'optional' ? 'Optional' : 'Required status unknown';
-}
-
-function QuestionMeta({ q, roundState }: { q: Question; roundState: RoundState }) {
-  return (
-    <p className="q-meta">
-      <VisibilityBadge q={q} roundState={roundState} />
-      <span>{FORMAT_LABEL[q.format]}</span>
-      <span>{lengthLabel(q)}</span>
-      <span className={q.condition ? 'q-condition' : undefined}>{requiredLabel(q)}</span>
-      {q.aiRule === 'prohibited' && <span className="ai-flag">No AI assistance</span>}
-    </p>
-  );
-}
-
-function ArtifactPicker({ item, update }: { item: PrepItem; update: Update }) {
-  const { ws } = useWorkspace();
-  const q = item.question;
-  const toggle = (id: string, on: boolean) =>
-    update(q.id, { artifactIds: on ? [...item.answer.artifactIds, id] : item.answer.artifactIds.filter((a) => a !== id) });
-  if (ws.dossier.artifacts.length === 0) {
-    return (
-      <p className="check-gap">
-        No artifacts yet · <a href={href({ name: 'dossier' })}>Add one to your dossier</a>
-      </p>
-    );
-  }
-  return (
-    <fieldset className="artifact-picker">
-      <legend>Attach from your dossier</legend>
-      {ws.dossier.artifacts.map((a) => (
-        <label key={a.id}>
-          <input type="checkbox" checked={item.answer.artifactIds.includes(a.id)} onChange={(e) => toggle(a.id, e.target.checked)} />{' '}
-          {a.title}
-          {!a.shareable && <span className="muted"> (not shareable: describe it instead)</span>}
-        </label>
-      ))}
-    </fieldset>
-  );
-}
-
-type Update = (questionId: string, patch: Partial<AnswerProgress>) => void;
-
-function sectionCounts(items: PrepItem[]) {
-  const counted = items.filter((i) => i.counted);
-  return { count: counted.length, done: counted.filter((i) => i.done).length };
-}
-
-function DossierSection({ items, update, roundState }: { items: PrepItem[]; update: Update; roundState: RoundState }) {
-  if (!items.length) return null;
-  return (
-    <section className="prep-section" aria-labelledby="sec-dossier" data-testid="section-dossier">
-      <SectionHead reuse="dossier" {...sectionCounts(items)} />
-      <ul className="checklist">
-        {items.map((item) => {
-          const q = item.question;
-          const isArtifacts = q.dossierField === 'artifacts';
-          return (
-            <li key={q.id} className={item.done ? 'check done' : 'check'} data-testid={`q-${q.id}`}>
-              <span className="check-box" aria-hidden="true">
-                {item.done ? '✓' : ''}
-              </span>
-              <div className="check-body">
-                <p className="check-prompt">{q.prompt}</p>
-                {item.fromDossier && !isArtifacts && <p className="check-value">From dossier: {item.fromDossier}</p>}
-                {isArtifacts && <ArtifactPicker item={item} update={update} />}
-                {item.gap && (
-                  <p className="check-gap">
-                    {item.gap} · <a href={href({ name: 'dossier' })}>Edit dossier</a>
-                  </p>
-                )}
-                {!q.dossierField && (
-                  <label className="check-manual">
-                    <input
-                      type="checkbox"
-                      checked={item.answer.confirmed}
-                      onChange={(e) => update(q.id, { confirmed: e.target.checked })}
-                    />{' '}
-                    Answer ready
-                  </label>
-                )}
-              </div>
-              <QuestionMeta q={q} roundState={roundState} />
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-function WritingSection({
-  reuse,
-  items,
-  update,
-  program,
-  roundState,
-}: {
-  reuse: 'tailor' | 'original';
-  items: PrepItem[];
-  update: Update;
-  program: Program;
-  roundState: RoundState;
-}) {
-  const { ws } = useWorkspace();
-  if (!items.length) return null;
-  const aiProhibited = program.aiPolicy.stance === 'prohibited';
-  return (
-    <section className="prep-section" aria-labelledby={`sec-${reuse}`} data-testid={`section-${reuse}`}>
-      <SectionHead reuse={reuse} {...sectionCounts(items)} />
-      <ul className="writing-list">
-        {items.map((item) => {
-          const q = item.question;
-          const words = countWords(item.answer.draft);
-          const max = q.statedLength?.unit === 'words' ? q.statedLength.max : null;
-          const chars = item.answer.draft.length;
-          const maxChars = q.statedLength?.unit === 'characters' ? q.statedLength.max : null;
-          const over = (max !== null && words > max) || (maxChars !== null && chars > maxChars);
-          const textual = q.format === 'long-text' || q.format === 'short-text';
-          const timed = q.format === 'timed-task';
-          return (
-            <li key={q.id} className={`writing reuse-${reuse}-edge${item.done ? ' done' : ''}`} data-testid={`q-${q.id}`}>
-              <div className="writing-head">
-                <ReuseBadge reuse={reuse} />
-                <p className="writing-prompt">{q.prompt}</p>
-                {item.done && <span className="done-mark">✓ Ready</span>}
-              </div>
-              {q.helpText && <p className="writing-help">{q.helpText}</p>}
-              <QuestionMeta q={q} roundState={roundState} />
-              {q.options && (
-                <p className="writing-options">
-                  Options: {q.options.join(' · ')}
-                </p>
-              )}
-              {(q.aiRule === 'prohibited' || aiProhibited) && (
-                <p className="ai-reminder">Write this in your own words. {program.name} does not accept AI-written answers.</p>
-              )}
-
-              {q.dossierField === 'artifacts' && <ArtifactPicker item={item} update={update} />}
-              {item.gap && <p className="check-gap">{item.gap}</p>}
-              {q.dossierField === 'researchInterests' && ws.dossier.researchNotes.trim() && (
-                <p className="writing-notes">
-                  <span className="mini-label">Your notes to draw on</span>
-                  {ws.dossier.researchNotes}
-                </p>
-              )}
-
-              {timed ? (
-                <label className="check-manual">
-                  <input type="checkbox" checked={item.answer.confirmed} onChange={(e) => update(q.id, { confirmed: e.target.checked })} />{' '}
-                  Can’t be drafted in advance. I have set aside uninterrupted time for it.
-                </label>
-              ) : (
-              <div className="writing-controls">
-                <label className="field field-inline">
-                  <span>Progress</span>
-                  <select value={item.answer.status} onChange={(e) => update(q.id, { status: e.target.value as AnswerStatus })}>
-                    {ANSWER_STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {ANSWER_STATUS_LABEL[s]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                {textual && (
-                  <span className={over ? 'wordcount over' : 'wordcount'}>
-                    {maxChars !== null ? `${chars} / ${maxChars} characters` : `${words}${max ? ` / ${max}` : ''} words`}
-                  </span>
-                )}
-              </div>
-              )}
-              {textual && (
-                <label className="field">
-                  <span>Your working draft (kept in this browser)</span>
-                  <textarea
-                    rows={q.format === 'long-text' ? 5 : 2}
-                    value={item.answer.draft}
-                    onChange={(e) => update(q.id, { draft: e.target.value })}
-                  />
-                </label>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-function AttestSection({ items, update, roundState }: { items: PrepItem[]; update: Update; roundState: RoundState }) {
-  if (!items.length) return null;
-  return (
-    <section className="prep-section" aria-labelledby="sec-attest" data-testid="section-attest">
-      <SectionHead reuse="attest" {...sectionCounts(items)} />
-      <ul className="checklist">
-        {items.map((item) => {
-          const q = item.question;
-          return (
-            <li key={q.id} className={item.done ? 'check done' : 'check'} data-testid={`q-${q.id}`}>
-              <span className="check-box" aria-hidden="true">
-                {item.done ? '✓' : ''}
-              </span>
-              <div className="check-body">
-                <p className="check-prompt">{q.prompt}</p>
-                {q.helpText && <p className="writing-help">{q.helpText}</p>}
-                {q.options && <p className="writing-options">Options: {q.options.join(' · ')}</p>}
-                <label className="check-manual">
-                  <input type="checkbox" checked={item.answer.confirmed} onChange={(e) => update(q.id, { confirmed: e.target.checked })} />{' '}
-                  {q.category === 'consent' ? 'I have read the official wording' : 'Answer ready'}
-                </label>
-              </div>
-              <QuestionMeta q={q} roundState={roundState} />
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-function UnseenSection({
-  title,
-  lede,
-  questions,
-  testId,
-  roundState,
-}: {
-  title: string;
-  lede: string;
-  questions: Question[];
-  testId: string;
-  roundState: RoundState;
-}) {
-  if (!questions.length) return null;
-  return (
-    <section className="prep-section unseen" data-testid={testId}>
-      <header className="section-head">
-        <h2 id={testId === 'not-yet-visible' ? 'sec-unseen' : undefined}>{title}</h2>
-        <p>{lede}</p>
-      </header>
-      <ul className="unseen-list">
-        {questions.map((q) => (
-          <li key={q.id} data-testid={`q-${q.id}`}>
-            <p className="check-prompt">{q.prompt}</p>
-            <p className="q-meta">
-              <VisibilityBadge q={q} roundState={roundState} />
-              <span>{FORMAT_LABEL[q.format]}</span>
-              <span>{lengthLabel(q)}</span>
-              {q.condition && <span className="q-condition">If applicable: {q.condition}</span>}
-            </p>
-            {q.notes && <p className="writing-help">{q.notes}</p>}
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }

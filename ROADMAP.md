@@ -1,36 +1,31 @@
-# Roadmap: partner-supported common submission
+# Roadmap
 
-The workspace currently prepares applications. It does not submit them. A common submission flow needs participating programs and explicit data-sharing agreements before any applicant data leaves the browser.
+The prototype shows the applicant experience end to end. Nothing is sent to programs yet. These are the steps to a working service.
 
-## 1. Keep the inventory current
+## 1. Pilot with two or three programs
+- Agree on the packet a program receives: the Common Application, its own questions, and recommenders.
+- Start with programs whose forms are already in Airtable or Google Forms, so a packet can be imported directly.
+- Confirm which of each program's questions the Common Application can replace, and which stay program-specific.
 
-- Re-verify each program when a round opens or closes, and at least monthly while a round is open.
-- Ask organizers for copies of closed-form questions. MATS, SPAR, PIBBSS, and Pivotal currently have prompts that are unpublished or not verified.
-- Detect changes on official pages and flag records whose sources have moved.
+## 2. Accounts and storage
+- Sign-in, and a hosted database with per-program access (for example, Postgres with row-level security), so each program sees only applications sent to it.
+- Export to each program's Airtable or spreadsheet, or push to it directly.
+- Retention and deletion rules, and a privacy policy both applicants and programs agree to.
 
-## 2. Agree on a shared profile with partner programs
+## 3. Recommenders
+- Send each recommender a single link to a single form.
+- With the applicant's consent, share the recommendation with every program that asks for one.
+- Show applicants whether each recommendation has arrived, never its contents.
 
-- Start from the eight question groups in the inventory. Only facts and artifacts are candidates for sharing: identity, CV, links, work samples, references, availability, and eligibility.
-- Keep motivation, program-fit, and original-reasoning answers program-specific. The workspace can help an applicant track them, but it never copies one program's answer to another.
-- Each program publishes its own question definitions, AI-use rules, and required consent text through the shared schema.
+## 4. Keep program details current
+- Re-check deadlines, links, and questions each round, and flag changes.
+- Ask organizers for their next-round questions before forms open.
 
-## 3. Submission with consent
-
-- The applicant chooses what goes to each program and sees a preview before sending.
-- Consent is recorded per program. The applicant can withdraw it and request deletion.
-- Delivery uses a channel each program approves (an API or a signed export), and every submission returns a receipt.
-- Programs' own AI-use attestations are shown and confirmed per submission.
-- Timed tasks, mentor work tests, and interviews stay on each program's own platform.
-
-## 4. Requirements before launch
-
-- Data-sharing agreements with each participating program.
-- Accounts, encryption at rest and in transit, and an audit log of what was shared and when.
-- A retention policy, a data processing agreement, and GDPR/UK GDPR review for UK and EU programs.
-- An accessibility review of the submission flow.
+## 5. Grow the resources
+- Interview practice sets and example answers from past fellows, with permission.
+- A short "which program fits me" guide.
 
 ## Open questions
-
-- How to handle mentor-specific questions (SPAR, Pivotal, MATS streams), which change every round.
-- Whether references are contacted by each program or once on the applicant's behalf.
-- How programs want to receive work samples: links, files, or both.
+- Should the Common App standardize a few written questions that programs accept in place of their own?
+- How should mentor-specific questions work (SPAR, Pivotal, MATS streams)? They change every round.
+- Timed tests (MATS, IAPS) stay on programs' own platforms. How do we link applicants to them cleanly?
