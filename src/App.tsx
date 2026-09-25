@@ -1,87 +1,93 @@
+import { useEffect } from 'react';
 import { href, useRoute, type Route } from './router';
-import { useNow } from './state/clock';
-import { useWorkspace } from './state/store';
-import { checklistMarkdown, downloadText } from './domain/export';
+import { EMPTY_STATE } from './state/app';
+import { sampleState } from './state/sample';
+import { useStore } from './state/store';
+import { Dashboard } from './views/Dashboard';
 import { ProgramsView } from './views/ProgramsView';
-import { QuestionMapView } from './views/QuestionMapView';
-import { DossierView } from './views/DossierView';
 import { ProgramView } from './views/ProgramView';
-import { SourcesView } from './views/SourcesView';
+import { ApplicationView } from './views/ApplicationView';
+import { RecommendersView } from './views/RecommendersView';
+import { ResourcesView } from './views/ResourcesView';
+import { InboxView } from './views/InboxView';
 
-const NAV: { route: Route; label: string }[] = [
-  { route: { name: 'programs' }, label: 'Compare programs' },
-  { route: { name: 'map' }, label: 'Question map' },
-  { route: { name: 'dossier' }, label: 'Dossier' },
-  { route: { name: 'sources' }, label: 'Sources' },
+const NAV: { route: Route; label: string; match: Route['name'][] }[] = [
+  { route: { name: 'dashboard' }, label: 'Dashboard', match: ['dashboard'] },
+  { route: { name: 'programs' }, label: 'Programs', match: ['programs', 'program'] },
+  { route: { name: 'application' }, label: 'My application', match: ['application'] },
+  { route: { name: 'recommenders' }, label: 'Recommenders', match: ['recommenders'] },
+  { route: { name: 'resources' }, label: 'Resources', match: ['resources'] },
 ];
-
-const timeFmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' });
 
 export function App() {
   const route = useRoute();
-  const { ws, dispatch, savedAt } = useWorkspace();
-  const now = useNow();
+  const { dispatch } = useStore();
+  const page = JSON.stringify(route);
 
-  const exportAll = () => {
-    const stamp = new Date().toISOString().slice(0, 10);
-    downloadText(`application-checklist-${stamp}.md`, checklistMarkdown(ws, now));
+  // Each page opens at the top, like a normal page load.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page]);
+
+  const loadSample = () => {
+    dispatch({ type: 'load', state: sampleState() });
+    window.location.hash = href({ name: 'dashboard' });
   };
-
-  const reset = () => {
-    if (window.confirm('Replace everything in this browser with the sample researcher? Your edits will be lost.')) {
-      dispatch({ type: 'workspace/reset' });
-    }
+  const startOver = () => {
+    if (window.confirm('Clear everything in this browser and start over?')) dispatch({ type: 'load', state: EMPTY_STATE });
   };
 
   return (
-    <div className="app">
-      <header className="masthead">
-        <div className="masthead-inner">
-          <a className="wordmark" href={href({ name: 'programs' })}>
-            <span className="wordmark-mark" aria-hidden="true" />
-            <span>
-              Fellowship Application Workspace
-              <small>AI safety research programs</small>
+    <>
+      <div className="demo-bar" role="note">
+        <span>
+          <strong>Prototype.</strong> Nothing is sent to any program; your answers stay in this browser.
+        </span>
+        <span className="demo-actions">
+          <button type="button" className="link-btn" onClick={loadSample}>
+            Load sample applicant
+          </button>
+          <button type="button" className="link-btn" onClick={startOver}>
+            Start over
+          </button>
+        </span>
+      </div>
+
+      <header className="header">
+        <div className="header-inner">
+          <a href={href({ name: 'dashboard' })} className="brand">
+            <span className="brand-mark" aria-hidden="true">
+              AI
             </span>
+            AI Safety Common App
           </a>
-          <div className="masthead-actions">
-            <span className="save-state" data-testid="save-state" aria-live="polite">
-              {savedAt ? `Saved in this browser · ${timeFmt.format(new Date(savedAt))}` : 'Sample data · edits save in this browser'}
-            </span>
-            <button type="button" className="btn btn-quiet" onClick={reset}>
-              Reset sample
-            </button>
-            <button type="button" className="btn btn-primary" onClick={exportAll}>
-              Export checklist
-            </button>
-          </div>
+          <nav aria-label="Main">
+            {NAV.map((n) => {
+              const active = n.match.includes(route.name);
+              return (
+                <a key={n.label} href={href(n.route)} className={active ? 'nav-link active' : 'nav-link'} aria-current={active ? 'page' : undefined}>
+                  {n.label}
+                </a>
+              );
+            })}
+          </nav>
         </div>
-        <nav className="tabs" aria-label="Sections">
-          {NAV.map(({ route: r, label }) => {
-            const active = r.name === route.name || (r.name === 'programs' && route.name === 'program');
-            return (
-              <a key={r.name} href={href(r)} className={active ? 'tab active' : 'tab'} aria-current={active ? 'page' : undefined}>
-                {label}
-              </a>
-            );
-          })}
-        </nav>
       </header>
 
-      <main className="page">
+      <main className="main">
+        {route.name === 'dashboard' && <Dashboard />}
         {route.name === 'programs' && <ProgramsView />}
-        {route.name === 'map' && <QuestionMapView />}
-        {route.name === 'dossier' && <DossierView />}
-        {route.name === 'sources' && <SourcesView />}
         {route.name === 'program' && <ProgramView id={route.id} />}
+        {route.name === 'application' && <ApplicationView section={route.section} />}
+        {route.name === 'recommenders' && <RecommendersView />}
+        {route.name === 'resources' && <ResourcesView />}
+        {route.name === 'inbox' && <InboxView programId={route.programId} />}
       </main>
 
       <footer className="footer">
-        <p>
-          A preparation tool. It never submits to fellowship forms and has no server: everything you type stays in this browser’s
-          local storage. The researcher shown is fictional.
-        </p>
+        <span>One application for AI safety fellowships. Program details checked Sep 25, 2026 against each program’s official pages.</span>
+        <a href={href({ name: 'inbox' })}>For programs: see what you’d receive →</a>
       </footer>
-    </div>
+    </>
   );
 }

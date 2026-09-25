@@ -1,79 +1,61 @@
-# Fellowship Application Workspace
+# AI Safety Common App
 
-A browser workspace for researchers applying to AI safety fellowships. It maps the questions eight programs ask, shows which answers carry across programs and which need fresh thinking, and tracks what each application still needs.
+One application for AI safety fellowships, with the resources applicants need alongside it.
 
-It uses a fictional sample researcher, never submits anything to a program, and keeps every edit in the browser's local storage.
+AI safety fellowships are competitive, applications are rising fast, and every program has its own form. Most of those forms ask the same things. This prototype lets an applicant fill those in once, choose programs, answer only each program's own questions, and ask recommenders once. It is modeled on the US Common App.
 
-## What it does
+## How it works
 
-- **Compare programs**: round status (checked against stated deadlines), location fit against your dossier, AI-use policy, published time estimates, your status, and readiness. You can rule programs out with a reason.
-- **Question map**: every question grouped by what it asks for (identity & CV, evidence of past work, motivation, original research judgment, program fit, references, availability, consent), with each program's prompts side by side.
-- **Researcher dossier**: facts, links, work artifacts, and references you prepare once. Each group shows how many questions it fills.
-- **Program preparation**: each application split into
-  - **Prepare once**: filled from the dossier.
-  - **Tailor for this program**: motivation and fit answers written for this prompt.
-  - **Original reasoning**: critiques, proposals, and timed tasks.
-  - **Confirm per program**: stream choices, consent, and AI attestations.
-  - **Not yet published**: prompts behind closed forms.
-- **Export**: a Markdown checklist for all active programs or one program. Working drafts are never included.
-- **Sources**: the evidence behind each program's round status, the sources consulted, and the full question inventory, downloadable as JSON.
+- **My application.** Profile, education and experience, work and links, availability, and one personal statement. These go to every program.
+- **Programs.** Eight fellowships, with their status, deadline, location, stipend, and what each asks beyond the Common Application. Add programs to your list.
+- **Program pages.** Each program's own questions, using the real prompts from its current or last application. Each page also has its AI-use rule, a requirements checklist, its confirmations, and a Submit button. Closed rounds can be saved and prepared for, but not submitted.
+- **Recommenders.** Add up to three people once. One request covers every program that asks for references.
+- **Resources.** Deadlines and official application links, how to write answers, each program's AI rule, work samples, references, interview prep (technical, research, and behavioral), and where to go next.
+- **What programs receive.** Every applicant arrives in the same format, and programs can download it as a spreadsheet for the tools they already use.
 
-## Programs covered
+## Why a common application works here
 
-LASR Labs, Anthropic Fellows, MATS, SPAR, PIBBSS, Pivotal, Iliad, and the IAPS AI Policy Fellowship. All were verified on September 25, 2026.
+The program details come from each program's official pages and forms, checked on Sep 25, 2026 (`src/data/inventory/`). Across the eight programs:
 
-## The question inventory
+- **81% shared:** of the 165 required upfront questions, 81% are shared facts or quick confirmations.
+- **About 28 profile fields** answer all of those shared questions.
+- **What's left is written:** each program adds 1 to 7 written questions, 29 in total.
+- **Written answers stay with each program.** LASR Labs, MATS, and SPAR don't accept AI-written answers, and Anthropic allows AI only to refine your own draft. So the Common App shares facts and one personal statement.
 
-`src/data/inventory/<program>.json` holds one record per program, validated at load time by the Zod schema in `src/data/schema.ts`.
+## What's real and what's simulated
 
-Each question records:
-
-- its category, stage, and input format
-- its stated length and required status
-- its official source URL and verification date
-- a `promptVisibility` label:
-
-| Label | Meaning |
+| Real | Simulated |
 | --- | --- |
-| `verbatim` ("Exact prompt") | Wording seen on an official page on the verification date. For a closed round the UI adds "closed round", because the next round may change it. When the round's status needs rechecking, it adds "as of" the verification date instead. |
-| `paraphrased` ("Wording not verified") | From an official description, or from a closed form's source that is not displayed to applicants. |
-| `unknown` ("Prompt not published") | The question exists but no official source gives its wording. |
+| Program details, deadlines, official links, AI rules, and each program's questions | Submitting: nothing is sent to any program |
+| Status that updates as deadlines pass | Recommender requests: no emails are sent |
+| The packet and spreadsheet a program would receive | Storage: everything stays in this browser's `localStorage` |
 
-Records also carry workspace annotations:
+**Storage.** For a prototype, browser storage needs no accounts or setup. For the real service, use a hosted database with sign-in, such as Postgres with row-level security, rather than a shared spreadsheet. Applications hold personal data, and each program should see only the applications sent to it. Programs can still receive a spreadsheet or Airtable export. See [ROADMAP.md](ROADMAP.md).
 
-- `dossierField`: the single dossier fact that answers a question (for example, years of software engineering). A question is ready only when that exact fact is filled in. Questions the dossier can't answer, such as whether you can attend the IAPS D.C. kickoff, have no `dossierField`; you confirm those yourself.
-- `dossierSlots`, `referenceParts`: for reference questions, which references (`[3]` for "Reference 3: Name", `[1, 2]` for a field asked of two referees) and which of their fields (name, email, role, organization, relationship) the question needs.
-- `condition`: questions shown only after certain answers. These are excluded from required counts.
-- `reuse`: overrides the default preparation class.
+## Run it
 
-Notes deliberately leave out scoring logic, answer keys, and screening mechanisms. Records describe only what an applicant sees.
-
-Round status is computed from the current time, and the page updates itself when a deadline passes:
-
-- Deadlines are recorded per cohort in the program's own timezone. A form that serves several cohorts, such as Iliad's Intensive and Fellowship, stays open until the last cohort's deadline.
-- A stated deadline always wins, so a form still reachable after its deadline shows as closed.
-- An open round with no deadline shows as "Recheck status" 21 days after it was last verified. It is never presented as closed.
-
-### Updating a program
-
-1. Re-read the official pages and forms. Don't enter or submit anything.
-2. Edit the program's JSON: update `accessed` and `verifiedOn` dates, round evidence, and prompts. Use `verbatim` only for wording you saw.
-3. Run `npm test`. The inventory tests check sources, stage references, verification labels, and round-status rules.
-
-## Development
+Requires Node 22 or newer.
 
 ```sh
 npm install
 npm run dev          # http://localhost:5173
-npm test             # unit and component tests (Vitest)
-npm run test:e2e     # applicant walkthrough in Chrome (Playwright)
+npm test             # data, rules, and screen tests (Vitest)
+npm run test:e2e     # the applicant walkthrough in Chrome (Playwright)
 npm run build        # type-check and production build
 ```
 
-The end-to-end tests build the app and serve it on port 4317, and they use an installed Chrome. Set `PLAYWRIGHT_CHROME_PATH` to point at a specific binary. The tests pin or advance the browser clock, so round status is deterministic.
+Use **Load sample applicant** in the top bar to explore with a fictional applicant, and **Start over** to clear it.
 
-## Privacy
+## Where things live
 
-There is no backend. The workspace is stored under one `localStorage` key, and "Reset sample" replaces it with the fictional researcher. Official application links open the programs' own sites, where applicants submit directly.
+- `src/data/inventory/`: the sourced record for each program, validated by `src/data/schema.ts`.
+- `src/data/catalog.ts`: which of each program's questions appear on its page, plus a one-line summary.
+- `src/logic.ts`: section completeness, answer checks, and what blocks a submission.
+- `src/views/`: one file per screen.
 
-See [ROADMAP.md](ROADMAP.md) for the partner-supported submission flow.
+## Updating a program for a new round
+
+1. Re-read the program's official pages and form without submitting anything.
+2. Update its JSON in `src/data/inventory/`: the deadline, round status and evidence, and questions.
+3. If its questions changed, update its entry in `src/data/catalog.ts`.
+4. Run `npm test`.

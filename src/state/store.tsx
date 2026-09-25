@@ -1,32 +1,36 @@
-import { createContext, useContext, useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
-import { loadWorkspace, reducer, saveWorkspace, type Action, type Workspace } from './workspace';
+import { createContext, useContext, useEffect, useReducer, useRef, type ReactNode } from 'react';
+import { ClockProvider } from './clock';
+import { loadState, reducer, saveState, type Action, type AppState } from './app';
 
 interface Store {
-  ws: Workspace;
+  state: AppState;
   dispatch: (action: Action) => void;
-  /** ISO time of the last write to this browser's storage. */
-  savedAt: string | null;
 }
 
 const StoreContext = createContext<Store | null>(null);
 
-export function WorkspaceProvider({ children }: { children: ReactNode }) {
-  const [ws, dispatch] = useReducer(reducer, undefined, () => loadWorkspace());
-  const [savedAt, setSavedAt] = useState<string | null>(ws.savedAt);
-  const loaded = useRef(ws);
+function StoreProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(reducer, undefined, () => loadState());
+  const loaded = useRef(state);
 
-  // Autosave every change to localStorage. The loaded workspace is not a change,
-  // which also keeps StrictMode's repeated effects from writing on mount.
+  // Save every change; the state read at startup is not a change.
   useEffect(() => {
-    if (ws === loaded.current) return;
-    setSavedAt(saveWorkspace(ws).savedAt);
-  }, [ws]);
+    if (state !== loaded.current) saveState(state);
+  }, [state]);
 
-  return <StoreContext.Provider value={{ ws, dispatch, savedAt }}>{children}</StoreContext.Provider>;
+  return <StoreContext.Provider value={{ state, dispatch }}>{children}</StoreContext.Provider>;
 }
 
-export function useWorkspace(): Store {
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    <ClockProvider>
+      <StoreProvider>{children}</StoreProvider>
+    </ClockProvider>
+  );
+}
+
+export function useStore(): Store {
   const store = useContext(StoreContext);
-  if (!store) throw new Error('useWorkspace must be used inside WorkspaceProvider');
+  if (!store) throw new Error('useStore must be used inside Providers');
   return store;
 }
