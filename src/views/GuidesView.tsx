@@ -1,8 +1,11 @@
 import type { ReactNode } from 'react';
-import type { AiStance } from '../data/schema';
 import { CATALOG_PROGRAMS } from '../data/catalog';
-import { ExternalLink, RoundPill } from '../components/ui';
-import { href } from '../router';
+import type { AiStance } from '../data/schema';
+import { formatVerified, lastVerified } from '../domain/round';
+import { ExternalLink } from '../components/ui';
+import { useTitle } from '../components/useTitle';
+import { Link, opportunityPath } from '../router';
+import { PREP_NOTES_BY_FAMILY } from '../site';
 
 const AI_RULE: Record<AiStance, string> = {
   prohibited: 'Not allowed',
@@ -11,9 +14,10 @@ const AI_RULE: Record<AiStance, string> = {
   'not-stated': 'No published policy',
 };
 
+const FAMILY_BY_PROGRAM = Object.fromEntries(Object.entries(PREP_NOTES_BY_FAMILY).reverse().map(([family, inv]) => [inv, family]));
+
 const TOPICS = [
   { id: 'start', title: 'Start here' },
-  { id: 'deadlines', title: 'Deadlines and official links' },
   { id: 'writing', title: 'Writing your answers' },
   { id: 'ai', title: 'AI help: each program’s rule' },
   { id: 'work', title: 'Work samples' },
@@ -31,13 +35,16 @@ function Topic({ id, title, children }: { id: string; title: string; children: R
   );
 }
 
-export function ResourcesView() {
+/** Application advice. Deadlines live on each listing, so they aren't repeated here. */
+export default function GuidesView() {
+  useTitle('Guides');
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const checked = formatVerified(CATALOG_PROGRAMS.map(({ program }) => lastVerified(program)).sort().at(-1)!);
 
   return (
-    <div className="resources">
+    <div className="guides">
       <aside className="toc" aria-label="Topics">
-        <h1>Resources</h1>
+        <h1>Guides</h1>
         <ul>
           {TOPICS.map((t) => (
             <li key={t.id}>
@@ -52,8 +59,9 @@ export function ResourcesView() {
       <div className="topics">
         <Topic id="start" title="Start here">
           <p>
-            Most AI safety fellowships are mentored research programs lasting one to four months. Many are paid, and most run more than
-            one round a year. They’re a common first step into AI safety research, policy, and engineering roles.
+            Most AI safety fellowships are mentored research programs lasting one to four months. Many are paid, and most run more than one
+            round a year. They’re a common first step into AI safety research, policy, and engineering roles. Courses are a lighter way in,
+            and many programs look for people who have taken one.
           </p>
           <ul>
             <li>
@@ -61,47 +69,18 @@ export function ResourcesView() {
               little about the next.
             </li>
             <li>
-              <strong>Choose by fit.</strong> Look at the topic (technical, theory, or policy), where you’d need to live, whether it’s full
-              time, and when it starts.
+              <strong>Choose by fit.</strong> Look at the focus (technical, governance, or general), where you’d need to live, whether it’s
+              full time, and when it starts. <Link href="/programs">Programs</Link> lets you filter by all of these.
+            </li>
+            <li>
+              <strong>Don’t miss the next round.</strong> Save a listing for reminders before its deadline, or follow a recurring program to
+              hear when it opens again.
             </li>
             <li>
               <strong>Talk to someone.</strong> <ExternalLink href="https://aisafety.quest/">AI Safety Quest</ExternalLink> offers free
               one-on-one calls to help you find your path into AI safety.
             </li>
           </ul>
-        </Topic>
-
-        <Topic id="deadlines" title="Deadlines and official links">
-          <p>
-            Some programs have more than one link, such as a job posting and a separate application form. These are the forms that
-            actually take applications.
-          </p>
-          <div className="table-wrap">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col">Program</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Apply at</th>
-                </tr>
-              </thead>
-              <tbody>
-                {CATALOG_PROGRAMS.map((c) => (
-                  <tr key={c.program.id}>
-                    <th scope="row">
-                      <a href={href({ name: 'program', id: c.program.id })}>{c.program.name}</a>
-                    </th>
-                    <td>
-                      <RoundPill program={c.program} compact />
-                    </td>
-                    <td>
-                      <ExternalLink href={c.program.applyUrl}>Official application</ExternalLink>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </Topic>
 
         <Topic id="writing" title="Writing your answers">
@@ -119,8 +98,8 @@ export function ResourcesView() {
               misalignment, loss of control, and misuse. Connect your interest to those, not only to AI ethics in general.
             </li>
             <li>
-              <strong>Show what you’ve already done about it.</strong> Projects you started on your own, things you’ve written, courses
-              and reading groups. Time you’ve invested says more than enthusiasm.
+              <strong>Show what you’ve already done about it.</strong> Projects you started on your own, things you’ve written, courses and
+              reading groups. Time you’ve invested says more than enthusiasm.
             </li>
             <li>
               <strong>Answer “why us” for real.</strong> Mention the program’s mentors, format, or focus, and what you’d do there that you
@@ -130,7 +109,10 @@ export function ResourcesView() {
         </Topic>
 
         <Topic id="ai" title="AI help: each program’s rule">
-          <p>Rules differ, and some programs check. When in doubt, write it yourself.</p>
+          <p>
+            Rules differ, and some programs check. When in doubt, write it yourself. These are the rules we found when we reviewed each
+            program’s application (checked {checked}); confirm on the official page for the current round.
+          </p>
           <div className="table-wrap">
             <table className="table">
               <thead>
@@ -143,15 +125,9 @@ export function ResourcesView() {
               <tbody>
                 {CATALOG_PROGRAMS.map(({ program: p }) => (
                   <tr key={p.id}>
-                    <th scope="row">{p.name}</th>
+                    <th scope="row">{FAMILY_BY_PROGRAM[p.id] ? <Link href={opportunityPath(FAMILY_BY_PROGRAM[p.id]!)}>{p.name}</Link> : p.name}</th>
                     <td>{AI_RULE[p.aiPolicy.stance]}</td>
-                    <td>
-                      {p.aiPolicy.stance !== 'not-stated' && p.aiPolicy.sourceUrl ? (
-                        <ExternalLink href={p.aiPolicy.sourceUrl}>Policy</ExternalLink>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
+                    <td>{p.aiPolicy.stance !== 'not-stated' && p.aiPolicy.sourceUrl ? <ExternalLink href={p.aiPolicy.sourceUrl}>Policy</ExternalLink> : '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -208,26 +184,26 @@ export function ResourcesView() {
           </p>
           <h3>Behavioral interviews</h3>
           <p>
-            Prepare three or four stories you can adapt to most questions: something you drove end to end, a mistake and what you changed,
-            a disagreement, and a time you learned something hard quickly. If you’ve worked independently or run a company, draw on
+            Prepare three or four stories you can adapt to most questions: something you drove end to end, a mistake and what you changed, a
+            disagreement, and a time you learned something hard quickly. If you’ve worked independently or run a company, draw on
             collaborators, customers, or contractors. An unconventional path is a strength here: it shows initiative.
           </p>
           <h3>Practice</h3>
           <p>
-            Do mock interviews with peers, and use an AI model to generate practice questions. Practicing with AI is different from having
-            it write your answers, which several programs don’t allow.
+            Do mock interviews with peers, and use an AI model to generate practice questions. Practicing with AI is different from having it
+            write your answers, which several programs don’t allow.
           </p>
         </Topic>
 
         <Topic id="more" title="Keep going">
           <ul className="links">
             <li>
-              <ExternalLink href="https://jobs.80000hours.org/">80,000 Hours job board</ExternalLink>: roles and fellowships in AI safety
-              and related fields.
+              <ExternalLink href="https://aisafety.com">AISafety.com</ExternalLink>: the directory SafetyApps’ listings come from, with
+              events, funding, advisors, and more.
             </li>
             <li>
-              <ExternalLink href="https://aisafety.com/training">AISafety.com training programs</ExternalLink>: fellowships, bootcamps, and
-              courses, online and in person.
+              <ExternalLink href="https://jobs.80000hours.org/">80,000 Hours job board</ExternalLink>: roles and fellowships in AI safety and
+              related fields.
             </li>
             <li>
               <ExternalLink href="https://bluedot.org/">BlueDot Impact</ExternalLink>: free online courses on AI safety.

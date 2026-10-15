@@ -1,0 +1,28 @@
+# Supabase CLI settings for local development (`supabase start`). The hosted project's
+# Auth settings are set in the dashboard to match; see docs/launch.md.
+project_id = "safetyapps"
+
+[api]
+schemas = ["public"]
+max_rows = 1000
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/auth/confirm", "https://safetyapps.org/auth/confirm", "https://*.vercel.app/auth/confirm"]
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+# Sign-in links last an hour.
+otp_expiry = 3600
+max_frequency = "60s"
+
+# Both templates link to /auth/confirm with a token hash, so a link works in any browser.
+[auth.email.template.magic_link]
+subject = "Your SafetyApps sign-in link"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.confirmation]
+subject = "Your SafetyApps sign-in link"
+content_path = "./supabase/templates/magic_link.html"

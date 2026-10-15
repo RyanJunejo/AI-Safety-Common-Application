@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { CATALOG_PROGRAMS, type CatalogProgram } from '../data/catalog';
+import { CATALOG_PROGRAMS, type CatalogProgram } from '../../data/catalog';
 import { RoundPill } from '../components/ui';
-import { roundStatus } from '../domain/round';
+import { roundStatus } from '../../domain/round';
 import { href } from '../router';
 import { useNow } from '../state/clock';
 import { useStore } from '../state/store';

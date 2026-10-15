@@ -1,4 +1,4 @@
-import { catalogProgram, type CatalogProgram } from '../data/catalog';
+import { catalogProgram, type CatalogProgram } from '../../data/catalog';
 import { aiRuleText, Check, ExternalLink, QuestionInput, RoundPill } from '../components/ui';
 import { requirements } from '../logic';
 import { href } from '../router';
