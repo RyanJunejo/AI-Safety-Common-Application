@@ -71,8 +71,14 @@ export function supabaseCatalog(config: SupabaseConfig, doFetch: typeof fetch = 
 
 /** The bundled AISafety.com snapshot, for local development and previews without Supabase. */
 export async function snapshotCatalog(): Promise<CatalogSource> {
-  const [{ SNAPSHOT_DAY, SNAPSHOT_FEEDS }, { buildCatalog }] = await Promise.all([import('../catalog/fixtures'), import('../catalog/catalog')]);
-  const { items } = buildCatalog(SNAPSHOT_FEEDS);
+  const [{ SNAPSHOT_DAY, SNAPSHOT_FEEDS }, { buildCatalog }, { loadIndependentOpportunitiesBrowser }] = await Promise.all([
+    import('../catalog/fixtures'),
+    import('../catalog/catalog'),
+    import('../catalog/independent/browser'),
+  ]);
+  const { items: aisafety } = buildCatalog(SNAPSHOT_FEEDS);
+  const independent = loadIndependentOpportunitiesBrowser();
+  const items = [...aisafety, ...independent];
   const byId = new Map(items.map((i) => [i.id, i]));
   return {
     preview: true,

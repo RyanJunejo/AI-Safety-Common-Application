@@ -63,8 +63,8 @@ function Footer() {
   return (
     <footer className="footer">
       <p>
-        Listings come from <a href="https://aisafety.com">AISafety.com</a> and are used under{' '}
-        <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Updated daily{synced ? `; last updated ${synced}` : ''}.
+        Listings come from <a href="https://aisafety.com">AISafety.com</a> (CC BY 4.0) and from independently researched
+        official sources. Each listing credits its actual source. Updated daily{synced ? `; last updated ${synced}` : ''}.
       </p>
       <nav aria-label="Footer">
         <Link href="/guides">Guides</Link>

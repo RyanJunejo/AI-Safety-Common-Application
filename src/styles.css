@@ -634,6 +634,21 @@ input[type='radio'] {
   font-size: 0.9rem;
 }
 
+.opp-source {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.opp-source a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.opp-source a:hover {
+  text-decoration: underline;
+}
+
 .opp-summary {
   margin: 0;
   font-size: 0.92rem;

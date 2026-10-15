@@ -1,19 +1,24 @@
 import { buildCatalog, type Feeds } from '../src/catalog/catalog.js';
 import { utcDay } from '../src/catalog/dates.js';
+import { findDedupeCollisions, formatDedupeError } from '../src/catalog/independent/index.js';
 import type { EventType } from '../src/alerts/plan.js';
 import { COLLECTIONS, type OpportunityDetail } from '../src/catalog/types.js';
 import { iso, type Db } from './db.js';
+import { loadIndependentOpportunities } from './independentListings.js';
 
 /**
- * The daily catalog sync (08:00 UTC). Fetches every AISafety.com collection, normalizes
- * it, and records what changed as catalog events, all in one transaction. If anything
- * fails, the catalog is left as it was and the run is marked failed, which holds back
- * the day's new-listing alerts.
+ * The daily catalog sync (08:00 UTC). Fetches every AISafety.com collection, merges
+ * independently researched listings from the repo, normalizes both, and records what
+ * changed as catalog events, all in one transaction. If anything fails, the catalog is
+ * left as it was and the run is marked failed, which holds back the day's new-listing
+ * alerts.
  */
 
 export interface SyncDeps {
   db: Db;
   fetchFeeds: () => Promise<Feeds>;
+  /** Override for tests; defaults to `data/independent-listings/*.json`. */
+  loadIndependent?: () => OpportunityDetail[] | Promise<OpportunityDetail[]>;
   now?: () => Date;
   log?: (message: string, data?: Record<string, unknown>) => void;
 }
@@ -21,6 +26,7 @@ export interface SyncDeps {
 export interface SyncStats {
   baseline: boolean;
   items: number;
+  independentItems: number;
   events: Partial<Record<EventType, number>>;
   rejected: number;
   duplicates: number;
@@ -97,6 +103,7 @@ export async function runSync(deps: SyncDeps): Promise<SyncResult> {
 
   try {
     const feeds = await deps.fetchFeeds();
+    const independent = await (deps.loadIndependent ?? loadIndependentOpportunities)();
     const stats = await db.transaction(async (tx) => {
       const decisions = new Map(
         (
@@ -106,6 +113,12 @@ export async function runSync(deps: SyncDeps): Promise<SyncResult> {
         ).map((r) => [r.opportunity_id, r.family_id] as const),
       );
       const catalog = buildCatalog(feeds, decisions);
+      const merged = [...catalog.items, ...independent];
+
+      const collisions = findDedupeCollisions(merged);
+      if (collisions.length) {
+        throw new Error(formatDedupeError(collisions));
+      }
 
       const existing = new Map(
         (
@@ -113,7 +126,8 @@ export async function runSync(deps: SyncDeps): Promise<SyncResult> {
         ).map((r) => [r.id, r]),
       );
 
-      // Guard against a truncated or reformatted feed before touching anything.
+      // Guard against a truncated or reformatted AISafety.com feed before touching anything.
+      // Independent listings use the `independent-` id prefix and are excluded from these counts.
       for (const collection of COLLECTIONS) {
         const fresh = catalog.items.filter((i) => i.provenance.collection === collection).length;
         const before = [...existing.values()].filter((r) => r.active && r.id.startsWith(`${collection}-`)).length;
@@ -134,7 +148,7 @@ export async function runSync(deps: SyncDeps): Promise<SyncResult> {
       const events: { opportunity_id: string; type: EventType; details: Record<string, unknown> }[] = [];
       const upserts: Record<string, unknown>[] = [];
 
-      for (const item of catalog.items) {
+      for (const item of merged) {
         const prev = existing.get(item.id);
         const hash = contentHash(item);
         for (const e of changes(prev, item)) events.push({ opportunity_id: item.id, ...e });
@@ -167,7 +181,9 @@ export async function runSync(deps: SyncDeps): Promise<SyncResult> {
         );
       }
 
-      const seen = catalog.items.map((i) => i.id);
+      // Seen = today's AISafety feed plus today's independent files. An independent
+      // listing missing from the AISafety feed stays active; removing its file deactivates it.
+      const seen = merged.map((i) => i.id);
       await tx.query(`update public.catalog_items set last_seen_at = $2 where id in (select jsonb_array_elements_text($1::text::jsonb))`, [
         JSON.stringify(seen),
         at,
@@ -204,7 +220,8 @@ export async function runSync(deps: SyncDeps): Promise<SyncResult> {
       for (const e of events) counts[e.type] = (counts[e.type] ?? 0) + 1;
       const result: SyncStats = {
         baseline,
-        items: catalog.items.length,
+        items: merged.length,
+        independentItems: independent.length,
         events: counts,
         rejected: catalog.rejected.length,
         duplicates: catalog.duplicates.length,
