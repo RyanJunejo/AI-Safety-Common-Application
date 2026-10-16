@@ -17,8 +17,18 @@ function optionalEnv(name: string): string | null {
   return process.env[name]?.trim() || null;
 }
 
+/**
+ * The site's address for links in emails. Preview deployments use their branch URL,
+ * so staging emails point at staging.
+ */
 export function siteUrl(): string {
-  return optionalEnv('SITE_URL') ?? 'https://safetyapps.org';
+  const branch = process.env.VERCEL_ENV === 'preview' ? optionalEnv('VERCEL_BRANCH_URL') : null;
+  return optionalEnv('SITE_URL') ?? (branch ? `https://${branch}` : 'https://safetyapps.org');
+}
+
+/** DATABASE_URL, or the POSTGRES_URL that Vercel's Supabase integration provides. */
+export function databaseUrl(): string {
+  return optionalEnv('DATABASE_URL') ?? optionalEnv('POSTGRES_URL') ?? requireEnv('DATABASE_URL');
 }
 
 export function sender(): EmailSender {
@@ -27,6 +37,11 @@ export function sender(): EmailSender {
     from: optionalEnv('ALERTS_FROM') ?? 'SafetyApps <alerts@safetyapps.org>',
     replyTo: optionalEnv('ALERTS_REPLY_TO') ?? undefined,
   });
+}
+
+/** The email sender, or null until RESEND_API_KEY is set. The sync works without it. */
+export function optionalSender(): EmailSender | null {
+  return optionalEnv('RESEND_API_KEY') ? sender() : null;
 }
 
 export function opsEmail(): string | null {
@@ -51,7 +66,7 @@ export function withDb(handler: (request: Request, db: Db) => Promise<Response>)
   return async (request: Request): Promise<Response> => {
     let db: Db | null = null;
     try {
-      db = connect(requireEnv('DATABASE_URL'));
+      db = connect(databaseUrl());
       return await handler(request, db);
     } catch (err) {
       if (err instanceof ConfigError) return Response.json({ error: err.message }, { status: 500 });

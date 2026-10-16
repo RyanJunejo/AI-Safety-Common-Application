@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
+  "regions": [
+    "pdx1"
+  ],
   "crons": [
     {
       "path": "/api/cron/sync",

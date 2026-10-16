@@ -44,11 +44,27 @@ function wrap(sql: Sql, root: postgres.Sql, inTransaction: boolean): Db {
   return db;
 }
 
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+
 /**
- * Connects with a DATABASE_URL. Use Supabase's transaction pooler (port 6543), which
+ * Connection options for a database URL. Hosted databases always use TLS. Query
+ * parameters other than `sslmode` are dropped: the Supabase integration's
+ * POSTGRES_URL adds `supa=…`, which postgres.js would send to the server as a setting.
+ */
+export function connectionOptions(url: string): { url: string; ssl: 'require' | false } {
+  const u = new URL(url);
+  const local = LOCAL_HOSTS.has(u.hostname.replace(/^\[|\]$/g, ''));
+  const sslmode = u.searchParams.get('sslmode');
+  u.search = '';
+  return { url: u.toString(), ssl: local && (sslmode === null || sslmode === 'disable') ? false : 'require' };
+}
+
+/**
+ * Connects with a database URL. Use Supabase's transaction pooler (port 6543), which
  * doesn't support prepared statements, from serverless functions.
  */
 export function connect(url: string): Db {
-  const root = postgres(url, { prepare: false, max: 1, idle_timeout: 20, connect_timeout: 15 });
+  const o = connectionOptions(url);
+  const root = postgres(o.url, { ssl: o.ssl, prepare: false, max: 1, idle_timeout: 20, connect_timeout: 15 });
   return wrap(root, root, false);
 }

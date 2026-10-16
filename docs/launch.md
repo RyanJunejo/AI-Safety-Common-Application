@@ -13,8 +13,8 @@ When this was written, safetyapps.org didn't resolve yet.
 5. **Authentication → URL Configuration:**
    - Site URL: `https://safetyapps.org`
    - Redirect URLs: `https://safetyapps.org/auth/confirm`, your staging URL's `/auth/confirm`, and `http://localhost:5173/auth/confirm`
-6. **Authentication → Emails → Templates:** paste `supabase/templates/magic_link.html` into both **Magic Link** and **Confirm signup**, with the subject "Your SafetyApps sign-in link". The link goes to `/auth/confirm` with a token hash, so it works in any browser.
-7. **Authentication → Emails → SMTP Settings:** turn on custom SMTP with Resend (step 2 below): host `smtp.resend.com`, port `465`, username `resend`, password a Resend API key, sender `SafetyApps <signin@safetyapps.org>`. Without custom SMTP, Supabase sends only a few emails an hour, to team members only.
+6. **Authentication → Emails → SMTP Settings:** turn on custom SMTP with Resend (step 2 below): host `smtp.resend.com`, port `465`, username `resend`, password a Resend API key, sender `SafetyApps <signin@safetyapps.org>`. Without custom SMTP, Supabase sends only a few emails an hour, to team members only.
+7. **Authentication → Emails → Templates:** paste `supabase/templates/magic_link.html` into both **Magic Link** and **Confirm signup**, with the subject "Your SafetyApps sign-in link". The link goes to `/auth/confirm` with a token hash, so it works in any browser. Free projects can only change templates once custom SMTP is on. Until then, the default email's link still signs people in, but only in the browser where they asked for it.
 8. **Authentication → Rate Limits:** after custom SMTP is on, raise the email limit from 30 an hour to suit the invite list (for example, 200).
 9. **Authentication → Sign In / Providers → Email:** keep email sign-in on. Password sign-in isn't used.
 

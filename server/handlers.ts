@@ -24,7 +24,8 @@ const unauthorized = () => new Response('Unauthorized', { status: 401 });
 
 export interface SyncHandlerDeps extends SyncDeps {
   cronSecret: string | undefined;
-  sender: EmailSender;
+  /** Null until email is configured; failures are then only logged. */
+  sender: EmailSender | null;
   opsEmail?: string | null;
 }
 
@@ -33,7 +34,7 @@ export async function handleSyncCron(request: Request, deps: SyncHandlerDeps): P
   if (!isCronRequest(request, deps.cronSecret)) return unauthorized();
   const deadline = Date.now() + FUNCTION_BUDGET_MS;
   const result = await runSync(deps);
-  if (result.status === 'failed') {
+  if (result.status === 'failed' && deps.sender) {
     const day = (deps.now?.() ?? new Date()).toISOString().slice(0, 10);
     await notifyOps(deps, `ops:sync:${day}`, 'SafetyApps: catalog sync failed', [
       `The catalog sync failed: ${result.error}`,
