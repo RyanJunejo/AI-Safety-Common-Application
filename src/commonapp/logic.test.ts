@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { catalogProgram, CATALOG_PROGRAMS } from './data/catalog';
+import { catalogProgram, CATALOG_PROGRAMS } from '../data/catalog';
 import { applicationProgress, csvCell, isAnswered, requirements } from './logic';
 import { EMPTY_APPLICATION, reducer, type AppState } from './state/app';
 import { sampleState } from './state/sample';

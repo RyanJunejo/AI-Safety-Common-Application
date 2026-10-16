@@ -1,4 +1,4 @@
-import { CATALOG_PROGRAMS } from '../data/catalog';
+import { CATALOG_PROGRAMS } from '../../data/catalog';
 import { TextField } from '../components/ui';
 import { href } from '../router';
 import { newId } from '../state/app';

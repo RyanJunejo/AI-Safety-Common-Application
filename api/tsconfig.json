@@ -1,0 +1,8 @@
+{
+  // Vercel compiles functions with the nearest tsconfig.json. Server code runs as plain
+  // ES modules in Node, so relative imports end in `.js`. Type checking happens in
+  // `npm run typecheck` (tsconfig.server.json); Vercel only transpiles, so no type packages.
+  "extends": "../tsconfig.server.json",
+  "compilerOptions": { "types": [] },
+  "include": ["."]
+}

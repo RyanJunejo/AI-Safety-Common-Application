@@ -1,31 +1,26 @@
 # Roadmap
 
-The prototype shows the applicant experience end to end. Nothing is sent to programs yet. These are the steps to a working service.
+## Now: public beta
 
-## 1. Pilot with two or three programs
-- Agree on the packet a program receives: the Common Application, its own questions, and recommenders.
-- Start with programs whose forms are already in Airtable or Google Forms, so a packet can be imported directly.
-- Confirm which of each program's questions the Common Application can replace, and which stay program-specific.
+SafetyApps lists programs, courses, jobs, and communities from AISafety.com, lets anyone save them, and sends opt-in alerts. Launch steps are in [docs/launch.md](docs/launch.md). During the beta:
 
-## 2. Accounts and storage
-- Sign-in, and a hosted database with per-program access (for example, Postgres with row-level security), so each program sees only applications sent to it.
-- Export to each program's Airtable or spreadsheet, or push to it directly.
-- Retention and deletion rules, and a privacy policy both applicants and programs agree to.
+- Invite survey respondents ([draft](docs/beta-invite.md)) and collect feedback.
+- Review queued cohorts weekly (`npm run catalog:review`) and add rules for new recurring programs.
+- Watch digest and alert volume; adjust what counts as "closing soon" if people find the same-day emails too frequent.
 
-## 3. Recommenders
-- Send each recommender a single link to a single form.
-- With the applicant's consent, share the recommendation with every program that asks for one.
-- Show applicants whether each recommendation has arrived, never its contents.
+## Next: resume reviews
 
-## 4. Keep program details current
-- Re-check deadlines, links, and questions each round, and flag changes.
-- Ask organizers for their next-round questions before forms open.
+Resume and application reviews for people applying to programs, starting with survey respondents who asked for one. This comes after the beta release.
 
-## 5. Grow the resources
-- Interview practice sets and example answers from past fellows, with permission.
-- A short "which program fits me" guide.
+## Later
+
+- **More preparation notes.** The eight researched programs show what their applications asked. Extend this to more recurring programs, and refresh it each round.
+- **Guides.** A "which program fits me" guide, and curated resources for people new to AI safety (reading lists, how to write research papers, who to talk to).
+- **More from AISafety.com.** Events and funding are in the same API and could be added as categories.
+- **Common App partnerships.** The Common App prototype (`src/commonapp/`) is kept for future work with programs, for example alongside Talent Commons. It needs program agreements on what a shared application covers before it's useful.
 
 ## Open questions
-- Should the Common App standardize a few written questions that programs accept in place of their own?
-- How should mentor-specific questions work (SPAR, Pivotal, MATS streams)? They change every round.
-- Timed tests (MATS, IAPS) stay on programs' own platforms. How do we link applicants to them cleanly?
+
+- Should followers also hear when a new round is *announced* (listed as opening soon), not only when it opens?
+- Should alerts have per-type switches (digest, reminders, follows), or are types and locations enough?
+- How should duplicate listings across sources be handled if a second source is added?

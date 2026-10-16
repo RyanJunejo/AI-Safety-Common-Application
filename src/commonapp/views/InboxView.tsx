@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { CATALOG_PROGRAMS, catalogProgram, type CatalogProgram } from '../data/catalog';
+import { CATALOG_PROGRAMS, catalogProgram, type CatalogProgram } from '../../data/catalog';
 import { answerText, csvCell, requestedRecommenders } from '../logic';
 import { href } from '../router';
 import type { AppState } from '../state/app';

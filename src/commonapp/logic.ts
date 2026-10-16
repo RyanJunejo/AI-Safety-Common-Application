@@ -1,6 +1,6 @@
-import type { Question } from './data/schema';
-import { CATALOG_PROGRAMS, type CatalogProgram } from './data/catalog';
-import { roundStatus, type RoundStatus } from './domain/round';
+import type { Question } from '../data/schema';
+import { CATALOG_PROGRAMS, type CatalogProgram } from '../data/catalog';
+import { roundStatus, type RoundStatus } from '../domain/round';
 import { EMPTY_ENTRY, type Answer, type Application, type AppState, type Recommender } from './state/app';
 
 export const STATEMENT_MIN_WORDS = 100;
