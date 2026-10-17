@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Feeds } from '../src/catalog/catalog.js';
 import { SNAPSHOT_FEEDS } from '../src/catalog/fixtures/index.js';
+import { testIndependentOpportunity } from '../src/catalog/independent/testing.js';
 import { decideReview, pendingReviews } from './reviews.js';
 import { fetchFeeds, SourceError } from './source.js';
 import { runSync } from './sync.js';
@@ -26,7 +27,10 @@ async function events(): Promise<{ opportunity_id: string; type: string; baselin
 describe('the daily catalog sync', () => {
   it('imports a baseline that will not trigger alerts', async () => {
     const result = await runSync({ db, fetchFeeds: async () => SNAPSHOT_FEEDS, now: at('2026-10-09T08:00:00Z') });
-    expect(result).toMatchObject({ status: 'succeeded', stats: { baseline: true, items: 501, rejected: 0, newReviews: 2, pendingReviews: 2 } });
+    expect(result).toMatchObject({
+      status: 'succeeded',
+      stats: { baseline: true, items: 501, independentItems: 0, rejected: 0, newReviews: 2, pendingReviews: 2 },
+    });
     const all = await events();
     expect(all).toHaveLength(501);
     expect(all.every((e) => e.type === 'listed' && e.baseline)).toBe(true);
@@ -103,6 +107,105 @@ describe('the daily catalog sync', () => {
       reason: 'Another sync is running',
     });
     expect(await runSync({ db, fetchFeeds: async () => SNAPSHOT_FEEDS, now: at('2026-10-09T08:30:00Z') })).toMatchObject({ status: 'succeeded' });
+  });
+
+  it('imports independently researched listings and keeps them when they are absent from AISafety.com', async () => {
+    const independent = testIndependentOpportunity({ id: 'survives-sync' });
+    const first = await runSync({
+      db,
+      fetchFeeds: async () => SNAPSHOT_FEEDS,
+      loadIndependent: () => [independent],
+      now: at('2026-10-09T08:00:00Z'),
+    });
+    expect(first).toMatchObject({ status: 'succeeded', stats: { independentItems: 1, items: 502 } });
+    const [row] = await db.query<{ active: boolean; data: { provenance: { source: string; listingUrl: string } } }>(
+      `select active, data from public.catalog_items where id = 'independent-survives-sync'`,
+    );
+    expect(row).toMatchObject({
+      active: true,
+      data: { provenance: { source: 'independent research', listingUrl: independent.provenance.listingUrl } },
+    });
+
+    // Later AISafety-only sync still includes the independent file → row stays active.
+    const second = await runSync({
+      db,
+      fetchFeeds: async () => SNAPSHOT_FEEDS,
+      loadIndependent: () => [independent],
+      now: at('2026-10-10T08:00:00Z'),
+    });
+    expect(second).toMatchObject({ status: 'succeeded' });
+    expect(await db.query(`select active from public.catalog_items where id = 'independent-survives-sync'`)).toEqual([{ active: true }]);
+    // Still absent from the AISafety feed, but not soft-deleted.
+    expect(await db.query(`select 1 from public.catalog_items where id = 'independent-survives-sync' and not active`)).toEqual([]);
+  });
+
+  it('does not let independent listings confuse the AISafety.com shrink check', async () => {
+    const extra = testIndependentOpportunity({ id: 'shrink-extra' });
+    await runSync({
+      db,
+      fetchFeeds: async () => SNAPSHOT_FEEDS,
+      loadIndependent: () => [extra],
+      now: at('2026-10-09T08:00:00Z'),
+    });
+    // Communities still shrinks sharply relative to the AISafety-only prior count
+    // (independent rows use the independent- prefix and are ignored by the guard).
+    const result = await runSync({
+      db,
+      fetchFeeds: async () => edit(SNAPSHOT_FEEDS, 'communities', (rs) => rs.slice(0, 40)),
+      loadIndependent: () => [extra],
+      now: at('2026-10-10T08:00:00Z'),
+    });
+    expect(result).toMatchObject({ status: 'failed', error: expect.stringContaining('communities: 40 listings, down from 256') });
+    expect(await db.query(`select active from public.catalog_items where id = 'independent-shrink-extra'`)).toEqual([{ active: true }]);
+  });
+
+  it('fails when an independent listing duplicates an AISafety.com listing', async () => {
+    // Pull the real snapshot row's org/url/title so the dedupe key matches.
+    const baseline = await runSync({ db, fetchFeeds: async () => SNAPSHOT_FEEDS, loadIndependent: () => [], now: at('2026-10-09T08:00:00Z') });
+    expect(baseline).toMatchObject({ status: 'succeeded' });
+    const [mats] = await db.query<{ data: { title: string; organization: string | null; url: string } }>(
+      `select data from public.catalog_items where id = 'training-recYtOVOnv2DW5XTv'`,
+    );
+    const dup = testIndependentOpportunity({
+      id: 'dup-mats-winter',
+      title: mats!.data.title,
+      organization: mats!.data.organization,
+      url: mats!.data.url,
+      officialUrl: mats!.data.url,
+      round: null,
+    });
+    const result = await runSync({
+      db,
+      fetchFeeds: async () => SNAPSHOT_FEEDS,
+      loadIndependent: () => [dup],
+      now: at('2026-10-10T08:00:00Z'),
+    });
+    expect(result.status).toBe('failed');
+    if (result.status === 'failed') {
+      expect(result.error).toMatch(/Duplicate listings/);
+      expect(result.error).toContain('independent-dup-mats-winter');
+      expect(result.error).toContain('training-recYtOVOnv2DW5XTv');
+    }
+    // Catalog unchanged after the failed run.
+    expect(await db.query(`select 1 from public.catalog_items where id = 'independent-dup-mats-winter'`)).toEqual([]);
+  });
+
+  it('deactivates an independent listing only when its file disappears', async () => {
+    const listing = testIndependentOpportunity({ id: 'will-remove' });
+    await runSync({
+      db,
+      fetchFeeds: async () => SNAPSHOT_FEEDS,
+      loadIndependent: () => [listing],
+      now: at('2026-10-09T08:00:00Z'),
+    });
+    const result = await runSync({
+      db,
+      fetchFeeds: async () => SNAPSHOT_FEEDS,
+      loadIndependent: () => [],
+      now: at('2026-10-10T08:00:00Z'),
+    });
+    expect(result).toMatchObject({ status: 'succeeded', stats: { events: { removed: 1 } } });
+    expect(await db.query(`select active from public.catalog_items where id = 'independent-will-remove'`)).toEqual([{ active: false }]);
   });
 
   it('applies a reviewer’s family decision on the next sync', async () => {

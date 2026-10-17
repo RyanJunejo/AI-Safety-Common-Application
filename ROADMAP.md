@@ -23,4 +23,4 @@ Resume and application reviews for people applying to programs, starting with su
 
 - Should followers also hear when a new round is *announced* (listed as opening soon), not only when it opens?
 - Should alerts have per-type switches (digest, reminders, follows), or are types and locations enough?
-- How should duplicate listings across sources be handled if a second source is added?
+- Should followers also hear about independently researched listings the same way as AISafety.com ones? (Duplicates across sources already fail the sync.)

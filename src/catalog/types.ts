@@ -68,18 +68,44 @@ export interface Fact {
   value: string;
 }
 
+/** Where a catalog row was researched or imported from. */
+export type ListingSource = 'AISafety.com' | 'independent research';
+
+/** Evidence for an independently researched listing (not AISafety.com). */
+export interface IndependentEvidence {
+  sourceType: 'official' | 'x-post' | 'both';
+  /** Organization's official page — what the site credits. */
+  officialUrl: string;
+  xPostUrl: string | null;
+  xAccount: string | null;
+  /** When the X post was published (YYYY-MM-DD). */
+  xPostDate: string | null;
+  /** When a researcher last verified the listing (YYYY-MM-DD). */
+  lastVerified: string;
+  /** Cohort / round label, when applicable. */
+  round: string | null;
+  /** IANA timezone for the application deadline, when known. */
+  deadlineTimezone: string | null;
+}
+
 export interface Provenance {
-  source: 'AISafety.com';
-  collection: Collection;
+  source: ListingSource;
+  /** AISafety.com collection, or `independent` for researched listings. */
+  collection: Collection | 'independent';
   /** The source's stable record ID. */
   sourceId: string;
-  /** The AISafety.com directory page that lists this record. */
+  /**
+   * Page credited as this listing's source: an AISafety.com directory page, or
+   * the organization's official URL for independently researched listings.
+   */
   listingUrl: string;
-  license: 'CC BY 4.0';
+  license: 'CC BY 4.0' | null;
   /** When the source last changed the record (YYYY-MM-DD), or published it for jobs. */
   updatedOn: string | null;
   /** When the source first listed the record (YYYY-MM-DD). */
   addedOn: string | null;
+  /** Present only for independently researched listings. */
+  evidence?: IndependentEvidence;
 }
 
 export interface Opportunity {

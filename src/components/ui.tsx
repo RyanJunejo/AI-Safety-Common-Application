@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { attributionCardLabel, listingAttribution } from '../catalog/attribution';
 import { formatShortDay } from '../catalog/dates';
 import { describeLocation } from '../catalog/location';
 import { closesIn, liveStatus } from '../catalog/status';
@@ -103,6 +104,7 @@ export function FollowButton({ familyId, name }: { familyId: string; name: strin
 
 export function OpportunityCard({ o, headingLevel = 3 }: { o: Opportunity; headingLevel?: 2 | 3 }) {
   const H = headingLevel === 2 ? 'h2' : 'h3';
+  const attribution = listingAttribution(o);
   return (
     <li className="opp-card" data-testid={`card-${o.id}`}>
       <div className="opp-top">
@@ -114,6 +116,9 @@ export function OpportunityCard({ o, headingLevel = 3 }: { o: Opportunity; headi
       </H>
       {o.organization && <p className="opp-org">{o.organization}</p>}
       {o.summary && <p className="opp-summary">{o.summary}</p>}
+      <p className="opp-source">
+        <ExternalLink href={attribution.href}>{attributionCardLabel(attribution)}</ExternalLink>
+      </p>
       <div className="opp-foot">
         <span className="opp-where">{describeLocation(o.location)}</span>
         <SaveButton o={o} small />

@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
+import { listingAttribution } from '../catalog/attribution';
 import { cohortsOf, hasActionableCohort } from '../catalog/browse';
 import { formatDay, isIsoDay } from '../catalog/dates';
 import { describeLocation } from '../catalog/location';
@@ -87,7 +88,7 @@ export function OpportunityView({ id }: { id: string }) {
       <section className="narrow">
         <h1>Listing not found</h1>
         <p>
-          It may have been removed from AISafety.com. <Link href="/explore">Explore current opportunities</Link>.
+          It may have been removed from the catalog. <Link href="/explore">Explore current opportunities</Link>.
         </p>
       </section>
     );
@@ -100,6 +101,8 @@ export function OpportunityView({ id }: { id: string }) {
   const prepId = familyId ? PREP_NOTES_BY_FAMILY[familyId] : undefined;
   const status = liveStatus(o, today);
   const shortName = family ? family.title.replace(/\s*\(.*\)$/, '') : 'this program';
+  const attribution = listingAttribution(o);
+  const deadlineTz = o.provenance.evidence?.deadlineTimezone ?? null;
 
   return (
     <article className="detail" aria-labelledby="detail-title">
@@ -124,7 +127,11 @@ export function OpportunityView({ id }: { id: string }) {
             {familyId && family && <FollowButton familyId={familyId} name={shortName} />}
           </div>
           {!entry.active && (
-            <Notice tone="warn">This listing is no longer on AISafety.com. The round may have ended, or the listing was removed.</Notice>
+            <Notice tone="warn">
+              {o.provenance.source === 'independent research'
+                ? 'This independently researched listing is no longer in the catalog. The round may have ended, or the record was removed.'
+                : 'This listing is no longer on AISafety.com. The round may have ended, or the listing was removed.'}
+            </Notice>
           )}
         </div>
 
@@ -132,6 +139,7 @@ export function OpportunityView({ id }: { id: string }) {
           {o.deadline ? (
             <Fact label="Deadline">
               {formatDay(o.deadline)}, as published
+              {deadlineTz ? <span className="muted"> · {deadlineTz}</span> : null}
               {status.daysLeft !== null && status.daysLeft <= 14 && <span className="muted"> · {closesIn(status.daysLeft).toLowerCase()}</span>}
             </Fact>
           ) : (
@@ -192,12 +200,59 @@ export function OpportunityView({ id }: { id: string }) {
       )}
 
       <footer className="provenance">
-        <p>
-          Listed on <ExternalLink href={o.provenance.listingUrl}>AISafety.com</ExternalLink>
-          {o.provenance.updatedOn ? `, last updated there ${formatDay(o.provenance.updatedOn)}` : ''}. Used under{' '}
-          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Spotted a mistake? Suggest a correction on AISafety.com.
-        </p>
+        <ProvenanceNote attribution={attribution} />
       </footer>
     </article>
+  );
+}
+
+function ProvenanceNote({ attribution }: { attribution: ReturnType<typeof listingAttribution> }) {
+  if (attribution.kind === 'aisafety') {
+    return (
+      <p>
+        Listed on <ExternalLink href={attribution.href}>AISafety.com</ExternalLink>
+        {attribution.updatedOn ? `, last updated there ${formatDay(attribution.updatedOn)}` : ''}. Used under{' '}
+        <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Spotted a mistake? Suggest a correction on AISafety.com.
+      </p>
+    );
+  }
+
+  const verified = attribution.lastVerified ? ` Last verified ${formatDay(attribution.lastVerified)}.` : '';
+  if (attribution.kind === 'x-post' && attribution.xPostUrl) {
+    const when = attribution.xPostDate ? ` on ${formatDay(attribution.xPostDate)}` : '';
+    const account = attribution.xAccount ? ` (${attribution.xAccount})` : '';
+    return (
+      <p>
+        Researched from an <ExternalLink href={attribution.xPostUrl}>X post</ExternalLink>
+        {account}
+        {when}
+        {attribution.officialUrl ? (
+          <>
+            ; official page:{' '}
+            <ExternalLink href={attribution.officialUrl}>organization site</ExternalLink>
+          </>
+        ) : null}
+        .{verified}
+      </p>
+    );
+  }
+
+  if (attribution.kind === 'both' && attribution.officialUrl && attribution.xPostUrl) {
+    const when = attribution.xPostDate ? ` on ${formatDay(attribution.xPostDate)}` : '';
+    return (
+      <p>
+        Researched from the organization&apos;s{' '}
+        <ExternalLink href={attribution.officialUrl}>official page</ExternalLink> and an{' '}
+        <ExternalLink href={attribution.xPostUrl}>X post</ExternalLink>
+        {when}.{verified}
+      </p>
+    );
+  }
+
+  return (
+    <p>
+      Researched from the organization&apos;s{' '}
+      <ExternalLink href={attribution.officialUrl ?? attribution.href}>official page</ExternalLink>.{verified}
+    </p>
   );
 }
